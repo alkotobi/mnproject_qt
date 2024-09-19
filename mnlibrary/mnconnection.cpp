@@ -1,7 +1,8 @@
 #include "mnconnection.h"
 
-mnconnection::mnconnection(QString db_name, Db_type db_type, QObject *parent) {
-    this->setParent(parent);
+mnconnection::mnconnection(QString db_name, Db_type db_type, QObject *parent)
+:QObject(parent)
+{
     this->db_name = db_name;
     this->db_type = db_type;
 }

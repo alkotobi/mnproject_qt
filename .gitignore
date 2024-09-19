@@ -3,3 +3,6 @@ build/
 .DS_Store
 
 *.user
+
+.idea/
+cmake-build-debug/

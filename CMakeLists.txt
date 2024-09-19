@@ -24,12 +24,16 @@ set(PROJECT_SOURCES
         mnlibrary/mnconnection_sqlite.h mnlibrary/mnconnection_sqlite.cpp
         mnlibrary/mnconnection_postgres.h mnlibrary/mnconnection_postgres.cpp
         mnlibrary/mnarrays.h mnlibrary/mnarrays.c
+        mnlibrary/mnstrings.h mnlibrary/mnstrings.cpp
+        mnlibrary/mnsql.h mnlibrary/mnsql.cpp
+        mnlibrary/mnqry.h mnlibrary/mnqry.cpp
         ${TS_FILES}
 )
 
     qt_add_executable(mnproject
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
 
     )
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
