@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         mnlibrary/mnstrings.h mnlibrary/mnstrings.cpp
         mnlibrary/mnsql.h mnlibrary/mnsql.cpp
         mnlibrary/mnqry.h mnlibrary/mnqry.cpp
+        mnlibrary/MNException.h mnlibrary/MNException.cpp
         ${TS_FILES}
 )
 

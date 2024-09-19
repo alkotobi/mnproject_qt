@@ -1,7 +1,8 @@
 #include "mnsql.h"
 #include "mnstrings.h"
+#include "MNException.h"
 
-MNSql::MNSql(QString sql,QObject *parent) : QObject(parent) {
+MNSql::MNSql(QString sql) {
     fText = sql;
     fChanged = false;
     QString lowerCaseSql = sql.toLower();
@@ -46,7 +47,7 @@ MNSql::MNSql(QString sql,QObject *parent) : QObject(parent) {
     if (strs.length() == 2)
         fTableName = strs[1].simplified();
     else
-        throw QString("wrong sql: " + sql);;
+        throw MNException(QString("wrong sql: " + sql));
 
     fFields = strs[0].simplified();
 }
@@ -59,7 +60,6 @@ QStringList MNSql::insertFields() {
     QStringList strs;
     QStringList strs2;
     QString table_name;
-    QString str;
     QStringList flds;
 
     if (!fInsertFields.isEmpty()) {

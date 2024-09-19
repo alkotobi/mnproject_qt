@@ -16,14 +16,19 @@ public:
 
     // mnconnection interface
 public:
-    mnconnection_sqlite(QString db_name,QObject *parent=nullptr);
-    bool connect();
-    bool exec(QString sql);
-    bool exec(QString sql, QList<QVariant> params);
-    bool close();
-    QString error_message();
+    explicit mnconnection_sqlite(QString db_name,QObject *parent=nullptr) ;
+    bool connect() override;
+    bool exec(QString sql) override;
+    bool exec(QString sql, QList<QVariant> params) override;
+    bool close() override;
+    QString errorMessage() override;
+
+    bool exec(QString sql, QList<QVariant>& params, QList<QStringList> *out) override;
+
+    int getLastInsertedId(QString idName, QString tableName) override;
+
 private:
-  sqlite3 *db;
+  sqlite3 *db{};
 
 
 

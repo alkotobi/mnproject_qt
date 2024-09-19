@@ -14,7 +14,7 @@
 class mnconnection_postgres : public mnconnection
 {
 private:
-    PGconn *db;
+    PGconn *db{};
 public:
     /**
      * @brief Constructor for mnconnection_postgres.
@@ -60,6 +60,10 @@ public:
      * @brief Returns the error message from the database connection.
      * @return The error message as a QString.
      */
-    QString error_message() override;
+    QString errorMessage() override;
+
+    bool exec(QString sql, QList<QVariant>& params, QList<QStringList> *out) override;
+
+    int getLastInsertedId(QString idName,QString tableName) override;
 };
 

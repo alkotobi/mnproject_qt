@@ -4,25 +4,25 @@
 #include "mnconnection.h"
 #include <QObject>
 #include <QVariant>
+#include "mnsql.h"
 
 class mnqry : public QObject {
    Q_OBJECT
 
 private:
     mnconnection *conn=nullptr;
-    QString _sql="";
     QList<QStringList> data={};
     int ind = -1;
-    int record_count=-1;
+    int fRecordCount=-1;
+    MNSql _sql;
 
 public:
-    mnqry(mnconnection *conn, QObject *parent = nullptr);
-    QString sql() const;
-    void setSql(const QString &newSql);
-    bool exec(QList<QVariant> params = {});
+    mnqry(mnconnection *conn,const QString& sql, QObject *parent = nullptr);
+    [[nodiscard]] MNSql sql() const;
+    bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
     void close();
-    int recordCount();
+    [[nodiscard]] int recordCount() const;
 };
 
 #endif // MNQRY_H

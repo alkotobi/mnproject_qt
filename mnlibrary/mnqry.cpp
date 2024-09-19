@@ -1,27 +1,38 @@
 #include "mnqry.h"
 
-QString mnqry::sql() const
+MNSql mnqry::sql() const
 {
     return _sql;
 }
 
-void mnqry::setSql(const QString &newSql)
-{
-    _sql = newSql;
-}
 
-bool mnqry::exec(QList<QVariant> params)
+
+bool mnqry::exec(const QString& sql,const QList<QVariant>& params)
 {
-    if(conn != nullptr && _sql!=""){
-         return conn->exec(_sql,params);
+    if(conn != nullptr && sql!=""){
+         return conn->exec(sql,params);
     }else
     {
         return false;
     }
 }
 
-mnqry::mnqry(mnconnection *conn,QObject *parent)
-    :QObject(parent)
+mnqry::mnqry(mnconnection *conn,const QString& sql, QObject *parent )
+    :QObject(parent),_sql(sql)
 {
     this->conn=conn;
+}
+
+void mnqry::close() {
+    data.clear();
+}
+
+int mnqry::recordCount() const {
+    return fRecordCount;
+}
+
+bool mnqry::open(QList<QVariant> params) {
+   bool ret= this->conn->exec(sql().text(),params,&data);
+    fRecordCount = (int)data.count();
+   return ret;
 }

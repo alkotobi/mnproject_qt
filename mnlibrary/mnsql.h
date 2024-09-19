@@ -6,9 +6,9 @@
 #include <QList>
 
 
-class MNSql : public QObject
+struct MNSql
 {
-Q_OBJECT
+
 private:
     QString fText;
     QString fTableName;
@@ -23,7 +23,7 @@ private:
     QStringList fInsertFields;
 
 public:
-    explicit MNSql(QString sql,QObject *parent = nullptr);
+    explicit MNSql(QString sql);
     bool isChanged();
     QStringList insertFields();
     QString tableName();
@@ -38,8 +38,4 @@ public:
     void setTableName(QString AValue);
     void setWhere(QString AValue);
     void setChanged(bool AValue);
-
-signals:
-
-
 };
