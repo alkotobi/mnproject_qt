@@ -6,6 +6,11 @@ mnconnection_sqlite::mnconnection_sqlite(QString db_name, QObject *parent)
     db = nullptr;
 }
 
+mnconnection_sqlite::~mnconnection_sqlite()
+{
+    sqlite3_close(db);
+}
+
 bool mnconnection_sqlite::connect() {
     QByteArray array = db_name.toLocal8Bit();
     char *buffer = array.data();

@@ -26,7 +26,7 @@ public:
      * @param parent The parent QObject (default is nullptr).
      */
     explicit mnconnection_postgres(QString db_name, QString server, int port, QString user_name, QString password, QObject *parent = nullptr);
-
+    ~mnconnection_postgres();
     // mnconnection interface
 public:
     /**
@@ -66,4 +66,6 @@ public:
 
     int getLastInsertedId(QString idName,QString tableName) override;
 };
+QString convertSqliteToPostgresRegExp(const QString& sqliteSql);
+QString convertSqliteToPostgres(const QString& sqliteSql);
 

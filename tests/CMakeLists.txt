@@ -24,6 +24,9 @@ target_link_libraries(test_sqlite PRIVATE -L/Library/PostgreSQL/16/lib)
 target_link_libraries(test_sqlite PRIVATE libpq.a)
 add_executable(test_postgres
         test_mnconnection_postgres.cpp
+        ../mnlibrary/mnconnection_postgres.cpp
+        ../mnlibrary/mnconnection.cpp
+        ../mnlibrary/mnarrays.c
 )
 target_link_libraries(test_postgres PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(test_postgres PRIVATE /Library/PostgreSQL/16/include)

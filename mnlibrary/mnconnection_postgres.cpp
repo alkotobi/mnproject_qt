@@ -1,3 +1,4 @@
+#include <QRegularExpression>
 #include "mnconnection_postgres.h"
 #include "mnarrays.h"
 #include "MNException.h"
@@ -9,6 +10,11 @@ mnconnection_postgres::mnconnection_postgres(QString db_name, QString server,
                                              QString password, QObject *parent)
     : mnconnection(db_name, Postgres, server, port, user_name, password, parent) {
     db= nullptr;
+}
+
+mnconnection_postgres::~mnconnection_postgres()
+{
+    PQfinish(db);
 }
 
 bool mnconnection_postgres::connect() {
@@ -26,6 +32,7 @@ bool mnconnection_postgres::connect() {
     }
 }
 
+
 bool mnconnection_postgres::exec(QString sql) {
     std::string s = sql.toStdString();
     PGresult *res = PQexec(db, s.c_str());
@@ -38,6 +45,43 @@ bool mnconnection_postgres::exec(QString sql) {
     return true;
 }
 
+QString convertSqliteToPostgresRegExp(const QString& sqliteSql){
+        QString postgresSql = sqliteSql.simplified();
+
+        // Convert INTEGER PRIMARY KEY AUTOINCREMENT in any case
+        static QRegularExpression integerPkRegex(R"((in)?te?g?e?r?\s+(primar(y|ily)\s+key\s+autoincrement))",QRegularExpression::CaseInsensitiveOption);
+        postgresSql.replace(integerPkRegex, "SERIAL PRIMARY KEY");
+
+        // Replace placeholders from "?" to "$n"
+        int placeholderCount = 1;
+        int index = postgresSql.indexOf('?');
+        while (index!= -1) {
+            postgresSql.replace(index, 1, QString("$%1").arg(placeholderCount++));
+            index = postgresSql.indexOf('?');
+        }
+        return postgresSql;
+
+}
+
+QString convertSqliteToPostgres(const QString& sqliteSql) {
+    QString postgresSql = sqliteSql.toLower().simplified();
+
+    // Convert INTEGER PRIMARY KEY AUTOINCREMENT
+    if (postgresSql.contains("integer primary key autoincrement")) {
+        postgresSql.replace("integer primary key autoincrement", "serial primary key");
+    }
+
+    // Replace placeholders from "?" to "$n"
+    int placeholderCount = 1;
+    int index =(int) postgresSql.indexOf('?');
+    while (index!= -1) {
+        QString plc="$"+QString::number(placeholderCount++);
+        postgresSql.replace(index, 1, plc);
+        index =(int) postgresSql.indexOf('?');
+    }
+
+    return postgresSql;
+}
 
 void fillParamsArrays(QList<QVariant> &params, mncstr_array &param_values,
 mnarray &param_lengths,mnarray &param_formats){
@@ -97,7 +141,7 @@ mnarray &param_lengths,mnarray &param_formats){
 }
 
 bool do_exec( PGconn *db,PGresult *res,int sqlType, const QString& sql, QList<QVariant>& params) {
-    if (!res) {
+    if (res) {
         PQclear(res);
     }
     std::string s = sql.toStdString();
@@ -113,6 +157,7 @@ bool do_exec( PGconn *db,PGresult *res,int sqlType, const QString& sql, QList<QV
     QString stmt_nm = "stmt" + QString::number(id_names++);
     std::string s0 = stmt_nm.toStdString();
     const char *stmt_name = s0.c_str();
+    if(nParams>0){
     res = PQprepare(db, stmt_name, command, nParams, nullptr);
     if (PQresultStatus(res)!= sqlType) { //PGRES_COMMAND_OK
         qCritical() << "PQprepare failed: " << QString(PQresultErrorMessage(res));
@@ -128,6 +173,9 @@ bool do_exec( PGconn *db,PGresult *res,int sqlType, const QString& sql, QList<QV
     PQclear(res);
     res = PQexecPrepared(db, stmt_name, nParams, paramValues, paramLengths,
                          paramFormats, resultFormat);
+    }else{
+        res = PQexec(db, s.c_str());
+    }
     if (PQresultStatus(res)!= sqlType) {//PGRES_COMMAND_OK
         qCritical() << "PQexecPrepared failed: " << QString(PQresultErrorMessage(res))<<"\n";
         mncstr_array_finalize(&param_values);
@@ -172,8 +220,15 @@ bool
 mnconnection_postgres::exec(QString sql, QList<QVariant> &params, QList<QStringList> *dataOut, QStringList *fieldNamesOut) {
     if (!dataOut->isEmpty()) dataOut->clear();
     PGresult *res = nullptr;
-    bool ret = do_exec(db,res,PGRES_TUPLES_OK,sql,params);
-    if(ret){
+    std::string s= sql.toStdString();
+    //---------------no params---------------------
+    if(params.count()==0){
+        res = PQexec(db, s.c_str());
+        if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+            qCritical() << "Query execution failed: " << PQerrorMessage(db) << "\n";
+            PQclear(res);
+            return false;
+        }
         int numRows = PQntuples(res);
         int numCols = PQnfields(res);
 
@@ -186,13 +241,52 @@ mnconnection_postgres::exec(QString sql, QList<QVariant> &params, QList<QStringL
         }
         if(fieldNamesOut)
             getColumnNamesFromSelect(res,fieldNamesOut);
-    }else
-    {
-        qCritical() << sql+" FAILED" << PQerrorMessage(db) << "\n";
-        throw MNException(QString(sql+" failed: "+QString(PQerrorMessage(db))));
+        PQclear(res);
+        return true;
     }
-    return true;
+    //---------------with params---------------------
+
+    mncstr_array param_values;
+    mnarray param_lengths;
+    mnarray param_formats;
+    mncstr_array_init(&param_values);
+    mnarray_init(&param_lengths);
+    mnarray_init(&param_formats);
+    fillParamsArrays(params,param_values,param_lengths,param_formats);
+    char **paramValues = (char **)param_values.data;
+    int *paramLengths = (int *)param_lengths.data;
+    int *paramFormats = (int *)param_formats.data;
     PQclear(res);
+    int nParams =(int) params.count();
+
+    res = PQprepare(db,"name", s.c_str(), nParams,nullptr);
+    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
+        qCritical() << "Query execution failed: " << PQerrorMessage(db) << "\n";
+        PQclear(res);
+        return false;
+    }
+    PQclear(res);
+    res = PQexecPrepared(db,"name" , nParams, paramValues, paramLengths,
+                         paramFormats, 0);
+    if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        qCritical()  << "Execution of prepared statement failed: " << PQerrorMessage(db) << "\n";
+        PQclear(res);
+        return false;
+    }
+        int numRows = PQntuples(res);
+        int numCols = PQnfields(res);
+
+        for (int row = 0; row < numRows; ++row) {
+            QStringList rowData;
+            for (int col = 0; col < numCols; ++col) {
+                rowData.append(QString(PQgetvalue(res, row, col)));
+            }
+            dataOut->append(rowData);
+        }
+        if(fieldNamesOut)
+            getColumnNamesFromSelect(res,fieldNamesOut);
+    PQclear(res);
+    return true;
 }
 
 int mnconnection_postgres::getLastInsertedId(QString idName,QString tableName) {

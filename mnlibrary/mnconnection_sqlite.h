@@ -17,6 +17,7 @@ public:
     // mnconnection interface
 public:
     explicit mnconnection_sqlite(QString db_name,QObject *parent=nullptr) ;
+    ~mnconnection_sqlite();
     bool connect() override;
     bool exec(QString sql) override;
     bool exec(QString sql, QList<QVariant> params) override;
