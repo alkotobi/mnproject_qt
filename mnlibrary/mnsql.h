@@ -12,7 +12,7 @@ struct MNSql
 private:
     QString fText;
     QString fTableName;
-    QString fFields;
+    QStringList fFields;
     QString fWhere;
     QString fOrderBy;
     QString fGroupedBy;
@@ -26,9 +26,10 @@ public:
     explicit MNSql(QString sql);
     bool isChanged();
     QStringList insertFields();
+    QStringList *fields();
     QString tableName();
     QString text();
-    void setFields(QString AValue);
+    void setFields(QStringList AValue);
     void setGroupedBy(QString AValue);
     void setInsertFields(QStringList AValue);
     void setLimit(int AValue);

@@ -1,4 +1,5 @@
 #include "mnqry.h"
+#include "MNException.h"
 
 MNSql mnqry::sql() const
 {
@@ -24,7 +25,9 @@ mnqry::mnqry(mnconnection *conn,const QString& sql, QObject *parent )
 }
 
 void mnqry::close() {
+    if (!fActive) return;
     data.clear();
+    fActive= false;
 }
 
 int mnqry::recordCount() const {
@@ -32,7 +35,56 @@ int mnqry::recordCount() const {
 }
 
 bool mnqry::open(QList<QVariant> params) {
-   bool ret= this->conn->exec(sql().text(),params,&data);
+    if(fActive){
+        throw MNException("can not perform this operation on an open qry");
+    }
+    QStringList *fld = _sql.fields();
+    if(!fld->contains("*")){
+        fld= nullptr;
+    }
+   bool ret= this->conn->exec(sql().text(), params, &data, fld);
     fRecordCount = (int)data.count();
+    if (ret) {
+        fActive = true;
+        fState = stBrowse;
+    }
+    else fActive = false;
    return ret;
+}
+
+void mnqry::edit() {
+    fState = stEdit;
+}
+
+bool mnqry::append() {
+    fState=stInsert;
+    QStringList l;
+    for (int i =0;i<_sql.fields()->count();i++){
+        l.append("");
+    }
+    data.append(l);
+    if(!goTo(data.count()-1)){
+        data.removeLast();
+        return false;
+    }
+    return true;
+}
+
+bool mnqry::post() {
+
+    fState=stBrowse;
+    return false;
+}
+
+bool mnqry::goTo(int ind) {
+    if(ind <0 && ind>= data.count()){
+        qCritical()<< "index out of range\n";
+        return false;
+    }
+    if(fState != stBrowse){
+        if(!post())
+            return false;
+    }
+    this->ind = ind;
+    return true;
 }

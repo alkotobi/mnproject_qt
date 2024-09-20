@@ -23,7 +23,7 @@ public:
     bool close() override;
     QString errorMessage() override;
 
-    bool exec(QString sql, QList<QVariant>& params, QList<QStringList> *out) override;
+    bool exec(QString sql, QList<QVariant> &params, QList<QStringList> *dataOut, QStringList *fieldNamesOut) override;
 
     int getLastInsertedId(QString idName, QString tableName) override;
 

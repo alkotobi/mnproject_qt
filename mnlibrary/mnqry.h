@@ -6,6 +6,7 @@
 #include <QVariant>
 #include "mnsql.h"
 
+typedef enum {stEdit,stInsert,stBrowse} MNQryState;
 class mnqry : public QObject {
    Q_OBJECT
 
@@ -15,6 +16,8 @@ private:
     int ind = -1;
     int fRecordCount=-1;
     MNSql _sql;
+    bool fActive=false;
+    MNQryState fState=stBrowse;
 
 public:
     mnqry(mnconnection *conn,const QString& sql, QObject *parent = nullptr);
@@ -23,6 +26,10 @@ public:
     bool open(QList<QVariant> params = {});
     void close();
     [[nodiscard]] int recordCount() const;
+    void edit();
+    bool append();
+    bool post();
+    bool goTo(int ind);
 };
 
 #endif // MNQRY_H

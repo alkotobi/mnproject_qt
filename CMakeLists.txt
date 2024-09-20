@@ -28,7 +28,10 @@ set(PROJECT_SOURCES
         mnlibrary/mnsql.h mnlibrary/mnsql.cpp
         mnlibrary/mnqry.h mnlibrary/mnqry.cpp
         mnlibrary/MNException.h mnlibrary/MNException.cpp
-        ${TS_FILES}
+        mnlibrary/mndb_types.h
+        mnlibrary/mndb_types.cpp mnlibrary/mndb_types.h
+        test.h
+          ${TS_FILES}
 )
 
     qt_add_executable(mnproject
@@ -43,5 +46,5 @@ target_include_directories(mnproject PRIVATE /Library/PostgreSQL/16/include)
 target_link_libraries(mnproject PRIVATE -L/Library/PostgreSQL/16/lib)
 target_link_libraries(mnproject PRIVATE libpq.a)
 
-#add_subdirectory(tests)
+add_subdirectory(tests)
 

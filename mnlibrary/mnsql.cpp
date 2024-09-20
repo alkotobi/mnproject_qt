@@ -49,7 +49,7 @@ MNSql::MNSql(QString sql) {
     else
         throw MNException(QString("wrong sql: " + sql));
 
-    fFields = strs[0].simplified();
+    fFields = strs[0].simplified().split(",");
 }
 
 bool MNSql::isChanged() {
@@ -67,7 +67,7 @@ QStringList MNSql::insertFields() {
     }
     strs = this->fTableName.split(',');
     setTableName(strs[0]);
-    strs = this->fFields.split(',');
+    strs = this->fFields;
     for (const QString& str : strs) {
         strs2 = str.split('.');
         if (strs2.length() == 2) {
@@ -88,7 +88,7 @@ QString MNSql::text() {
         {
             return fText;
         }
-        QString result = "SELECT " + fFields + " FROM " + fTableName;
+        QString result = "SELECT " + fFields.join(",") + " FROM " + fTableName;
         if (fWhere!= "")
             result += " WHERE " + fWhere;
         if (fOrderBy!= "")
@@ -110,9 +110,9 @@ QString MNSql::text() {
 
 }
 
-void MNSql::setFields(QString AValue) {
-    if (fFields == AValue) return;
-    fFields = AValue;
+void MNSql::setFields(QStringList AValue) {
+    fFields.clear();
+    fFields.append(AValue);
     fChanged = true;
 }
 
@@ -168,6 +168,10 @@ void MNSql::setChanged(bool AValue) {
 
 QString MNSql::tableName() {
     return fTableName;
+}
+
+QStringList* MNSql::fields() {
+    return &fFields;
 }
 
 

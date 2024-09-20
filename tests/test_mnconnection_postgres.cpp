@@ -1,10 +1,8 @@
-#include "../mnlibrary/mnconnection_postgres.h"
+#include "mnconnection_postgres.h"
 
-void TEST(MnConnectionPostgresTest, ConnectTest) {
-    // Test the connect method
-    mnconnection_postgres conn("test_db", "localhost", 5432, "test_user", "test_password");
-    bool connected = conn.connect();
-    EXPECT_TRUE(connected);
+
+int main(int argc, char *argv[])
+{
+    std::printf("hello world postgres\n");
+    return 0;
 }
-
-// Add more tests as needed

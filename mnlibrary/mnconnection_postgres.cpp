@@ -1,6 +1,6 @@
 #include "mnconnection_postgres.h"
 #include "mnarrays.h"
-#include "mnexception.h"
+#include "MNException.h"
 
 int id_names = 0;
 
@@ -96,7 +96,7 @@ mnarray &param_lengths,mnarray &param_formats){
 
 }
 
-bool do_exec( PGconn *db,PGresult *res, const QString& sql, QList<QVariant>& params) {
+bool do_exec( PGconn *db,PGresult *res,int sqlType, const QString& sql, QList<QVariant>& params) {
     if (!res) {
         PQclear(res);
     }
@@ -114,7 +114,7 @@ bool do_exec( PGconn *db,PGresult *res, const QString& sql, QList<QVariant>& par
     std::string s0 = stmt_nm.toStdString();
     const char *stmt_name = s0.c_str();
     res = PQprepare(db, stmt_name, command, nParams, nullptr);
-    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
+    if (PQresultStatus(res)!= sqlType) { //PGRES_COMMAND_OK
         qCritical() << "PQprepare failed: " << QString(PQresultErrorMessage(res));
         mncstr_array_finalize(&param_values);
         mnarray_finalize(&param_lengths);
@@ -128,7 +128,7 @@ bool do_exec( PGconn *db,PGresult *res, const QString& sql, QList<QVariant>& par
     PQclear(res);
     res = PQexecPrepared(db, stmt_name, nParams, paramValues, paramLengths,
                          paramFormats, resultFormat);
-    if (PQresultStatus(res)!= PGRES_COMMAND_OK) {
+    if (PQresultStatus(res)!= sqlType) {//PGRES_COMMAND_OK
         qCritical() << "PQexecPrepared failed: " << QString(PQresultErrorMessage(res))<<"\n";
         mncstr_array_finalize(&param_values);
         mnarray_finalize(&param_lengths);
@@ -144,7 +144,7 @@ bool do_exec( PGconn *db,PGresult *res, const QString& sql, QList<QVariant>& par
 
 bool mnconnection_postgres::exec(QString sql, QList<QVariant> params) {
     PGresult *res = nullptr;
-    bool ret = do_exec(db,res,sql,params);
+    bool ret = do_exec(db,res,PGRES_COMMAND_OK,sql,params);
     PQclear(res);
     return ret;
 }
@@ -158,10 +158,21 @@ QString mnconnection_postgres::errorMessage() {
     return {PQerrorMessage(db)};
 }
 
-bool mnconnection_postgres::exec(QString sql, QList<QVariant>& params, QList<QStringList> *out) {
-    if (!out->isEmpty()) out->clear();
+void getColumnNamesFromSelect(PGresult* res,QStringList *columns) {
+    if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        throw MNException( "Query is not select") ;
+    }
+    int numCols = PQnfields(res);
+    for (int i = 0; i < numCols; ++i) {
+        columns->append(PQfname(res, i));
+    }
+}
+
+bool
+mnconnection_postgres::exec(QString sql, QList<QVariant> &params, QList<QStringList> *dataOut, QStringList *fieldNamesOut) {
+    if (!dataOut->isEmpty()) dataOut->clear();
     PGresult *res = nullptr;
-    bool ret = do_exec(db,res,sql,params);
+    bool ret = do_exec(db,res,PGRES_TUPLES_OK,sql,params);
     if(ret){
         int numRows = PQntuples(res);
         int numCols = PQnfields(res);
@@ -171,8 +182,10 @@ bool mnconnection_postgres::exec(QString sql, QList<QVariant>& params, QList<QSt
             for (int col = 0; col < numCols; ++col) {
                 rowData.append(QString(PQgetvalue(res, row, col)));
             }
-            out->append(rowData);
+            dataOut->append(rowData);
         }
+        if(fieldNamesOut)
+            getColumnNamesFromSelect(res,fieldNamesOut);
     }else
     {
         qCritical() << sql+" FAILED" << PQerrorMessage(db) << "\n";
