@@ -27,16 +27,23 @@ set(PROJECT_SOURCES
         mnlibrary/mnstrings.h mnlibrary/mnstrings.cpp
         mnlibrary/mnsql.h mnlibrary/mnsql.cpp
         mnlibrary/mnqry.h mnlibrary/mnqry.cpp
-        mnlibrary/MNException.h mnlibrary/MNException.cpp
+        mnlibrary/mnexception.h mnlibrary/mnexception.cpp
         mnlibrary/mndb_types.h
         mnlibrary/mndb_types.cpp mnlibrary/mndb_types.h
+        mnlibrary/mndatasource.h         mnlibrary/mndatasource.cpp
+        mnlibrary/mncustomdatasource.cpp mnlibrary/mncustomdatasource.h
+        mnlibrary/mnqry.cpp mnlibrary/mnqry.h
+        mnlibrary/mncustomquery.h mnlibrary/mncustomquery.cpp
+        mnlibrary/gui/mncustomdbctrl.h mnlibrary/gui/mncustomdbctrl.cpp
         test.h
           ${TS_FILES}
+
 )
 
     qt_add_executable(mnproject
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+
 
 
     )

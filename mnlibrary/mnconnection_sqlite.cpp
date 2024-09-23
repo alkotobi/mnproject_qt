@@ -1,5 +1,5 @@
 #include "mnconnection_sqlite.h"
-#include "MNException.h"
+#include "mnexception.h"
 
 mnconnection_sqlite::mnconnection_sqlite(QString db_name, QObject *parent)
         : mnconnection(db_name, Sqlite, parent) {

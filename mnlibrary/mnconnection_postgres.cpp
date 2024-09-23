@@ -1,7 +1,7 @@
 #include <QRegularExpression>
 #include "mnconnection_postgres.h"
 #include "mnarrays.h"
-#include "MNException.h"
+#include "mnexception.h"
 
 int id_names = 0;
 

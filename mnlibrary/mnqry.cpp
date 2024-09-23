@@ -1,14 +1,14 @@
 #include "mnqry.h"
-#include "MNException.h"
+#include "mnexception.h"
 
-MNSql mnqry::sql() const
+MNSql MnQry::sql() const
 {
     return _sql;
 }
 
 
 
-bool mnqry::exec(const QString& sql,const QList<QVariant>& params)
+bool MnQry::exec(const QString& sql, const QList<QVariant>& params)
 {
     if(conn != nullptr && sql!=""){
          return conn->exec(sql,params);
@@ -18,23 +18,23 @@ bool mnqry::exec(const QString& sql,const QList<QVariant>& params)
     }
 }
 
-mnqry::mnqry(mnconnection *conn,const QString& sql, QObject *parent )
-    :QObject(parent),_sql(sql)
+MnQry::MnQry(mnconnection *conn, const QString& sql, QObject *parent )
+    :MnCustomQry(parent),_sql(sql)
 {
     this->conn=conn;
 }
 
-void mnqry::close() {
+void MnQry::close() {
     if (!fActive) return;
     data.clear();
     fActive= false;
 }
 
-int mnqry::recordCount() const {
+int MnQry::recordCount() const {
     return fRecordCount;
 }
 
-bool mnqry::open(QList<QVariant> params) {
+bool MnQry::open(QList<QVariant> params) {
     if(fActive){
         throw MNException("can not perform this operation on an open qry");
     }
@@ -52,31 +52,33 @@ bool mnqry::open(QList<QVariant> params) {
    return ret;
 }
 
-void mnqry::edit() {
+void MnQry::edit() {
     fState = stEdit;
 }
 
-bool mnqry::append() {
+bool MnQry::append() {
+    if (fState != stBrowse) post();
     fState=stInsert;
     QStringList l;
     for (int i =0;i<_sql.fields()->count();i++){
         l.append("");
     }
     data.append(l);
-    if(!goTo(data.count()-1)){
+    if(!goTo((data.count()-1))){
         data.removeLast();
         return false;
     }
     return true;
 }
 
-bool mnqry::post() {
+bool MnQry::post() {
 
     fState=stBrowse;
     return false;
 }
 
-bool mnqry::goTo(int ind) {
+bool MnQry::goTo(int ind) {
+    if (!execBeforeScroll()) return false;
     if(ind <0 && ind>= data.count()){
         qCritical()<< "index out of range\n";
         return false;
@@ -86,5 +88,45 @@ bool mnqry::goTo(int ind) {
             return false;
     }
     this->ind = ind;
+    execAfterScroll();
     return true;
 }
+
+bool MnQry::execBeforeScroll() {
+    bool ret= true;
+    for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
+        ret=ret && beforeScrollNtfs[i](this);
+    }
+    return ret;
+}
+
+void MnQry::execAfterScroll() {
+    for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
+        afterScrollNtfs[i](this);
+    }
+}
+
+void MnQry::addDataSource(MnCustomDataSource* dts)
+{
+    if(dataSources.contains(dts)) return;
+    dataSources.append(dts);
+}
+
+void MnQry::removeDataSource(MnCustomDataSource *dts)
+{
+    dataSources.removeOne(dts);
+}
+
+QString *MnQry::fieldByName(const QString &name)
+{
+    int index =this->sql().fields()->indexOf(name);
+    if(index < 0 ) throw MNException(name + "is not a correct field name");
+    return &(data[this->ind][index]);
+}
+
+QString *MnQry::fieldByInd(const int index)
+{
+    return &(data[this->ind][index]);
+}
+
+

@@ -1,6 +1,6 @@
 #include "mnsql.h"
 #include "mnstrings.h"
-#include "MNException.h"
+#include "mnexception.h"
 
 MNSql::MNSql(QString sql) {
     fText = sql;
