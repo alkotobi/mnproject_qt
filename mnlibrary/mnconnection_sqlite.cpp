@@ -237,8 +237,8 @@ QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &
 }
 
 
-mntable mnconnection_sqlite::tableDef(const QString& tableName) {
-    mntable table;
+MnTableDef mnconnection_sqlite::tableDef(const QString& tableName) {
+    MnTableDef table;
     table.table_name = tableName;
 
     // Query to get column information
@@ -250,7 +250,7 @@ mntable mnconnection_sqlite::tableDef(const QString& tableName) {
     }
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        MnField field;
+        MnFieldDef field;
         field.field_name = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
         QString typeName = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
         if (typeName.contains("INT")) {

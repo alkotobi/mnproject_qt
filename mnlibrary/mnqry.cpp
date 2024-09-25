@@ -1,10 +1,7 @@
 #include "mnqry.h"
 #include "mnexception.h"
 
-MNSql MnQry::sql() const
-{
-    return _sql;
-}
+
 
 
 
@@ -18,19 +15,12 @@ bool MnQry::exec(const QString& sql, const QList<QVariant>& params)
     }
 }
 
-MnQry::MnQry(mnconnection *conn, const QString& sql, QObject *parent )
-    :MnCustomQry(parent),_sql(sql)
-{
-    //TODO MAKE TH MNTABLE FROM SQL
-    this->conn=conn;
-    this->table = conn->tableDef(_sql.tableName());
-}
 
-MnQry::MnQry(mnconnection *conn, mntable table, QObject *parent)
-:MnQry(conn,table.select_sql(),parent)
+MnQry::MnQry(mnconnection *conn, MnTableDef table, QObject *parent)
+:MnCustomQry(parent),_sql(table.selectSql())
 {
-    //TODO:CAN BE FASTER BY CREATING _sql better way
-    this->table = table;
+    this->conn=conn;
+    this->tableDef = table;
 
 }
 
@@ -49,10 +39,12 @@ bool MnQry::open(QList<QVariant> params) {
         throw MNException("can not perform this operation on an open qry");
     }
     QStringList *fld = _sql.fields();
-    if(!fld->contains("*")){
-        fld= nullptr;
+    if(fld->contains("*")){
+        fld->clear();
+    }else{
+        fld = nullptr;
     }
-   bool ret= this->conn->exec(sql().text(), params, &data, fld);
+   bool ret= this->conn->exec(sqlText(), params, &data, fld);
     fRecordCount = (int)data.count();
     if (ret) {
         fActive = true;
@@ -139,7 +131,7 @@ void MnQry::removeDataSource(MnCustomDataSource *dts)
 
 QString *MnQry::fieldByName(const QString &name)
 {
-    int index =this->sql().fields()->indexOf(name);
+    int index =this->fieldIndex(name);
     if(index < 0 ) throw MNException(name + "is not a correct field name");
     return &(data[this->ind][index]);
 }
@@ -188,6 +180,37 @@ bool MnQry::eof() {
 
 bool MnQry::bof() {
     return ind == 0;
+}
+
+MnQry::MnQry(mnconnection *conn, QString sql, QObject *parent)
+: MnCustomQry(parent),_sql(sql){
+    tableDef = MnTableDef();
+    this->conn = conn;
+}
+
+QString MnQry::sqlText() {
+    if (tableDef.table_name !=""){
+        return tableDef.selectSql();
+    } else{
+       return _sql.text();
+    }
+}
+
+long long MnQry::fieldIndex(QString fieldName) {
+    if (tableDef.table_name !=""){
+        return tableDef.fieldIndex(fieldName);
+    } else{
+        return _sql.fields()->indexOf(fieldName);
+    }
+}
+
+void MnQry::print() {
+    for (const QStringList& row : data) {
+        for (const QString& item : row) {
+            qDebug()  << item.toStdString() << "\t";
+        }
+        qDebug() << "\n";
+    }
 }
 
 

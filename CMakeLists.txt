@@ -8,8 +8,9 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets LinguistTools)
+#set(Qt6_DIR "/Users/mac/Qt/6.7.2/macos/lib/cmake/Qt6")
+set(CMAKE_PREFIX_PATH "/Users/mac/Qt/6.7.2/macos/lib/cmake/")
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
 set(TS_FILES mnproject_ar_DZ.ts)
@@ -40,19 +41,62 @@ set(PROJECT_SOURCES
 
 )
 
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(mnproject
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-
-
-
-
+            MANUAL_FINALIZATION
+            ${PROJECT_SOURCES}
     )
+
+else()
+    if(ANDROID)
+        add_library(mnproject SHARED
+                ${PROJECT_SOURCES}
+        )
+        # Define properties for Android with Qt 5 after find_package() calls as:
+        #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(mnproject
+                ${PROJECT_SOURCES}
+        )
+    endif()
+endif()
+
+#
+#qt_add_executable(mnproject
+#        MANUAL_FINALIZATION
+#        ${PROJECT_SOURCES}
+#
+#
+#
+#
+#    )
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 target_link_libraries(mnproject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(mnproject PRIVATE /Library/PostgreSQL/16/include)
 target_link_libraries(mnproject PRIVATE -L/Library/PostgreSQL/16/lib)
 target_link_libraries(mnproject PRIVATE libpq.a)
+
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.merhab.mnproject)
+endif()
+set_target_properties(mnproject PROPERTIES
+        ${BUNDLE_ID_OPTION}
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
+)
+
+include(GNUInstallDirs)
+install(TARGETS mnproject
+        BUNDLE DESTINATION .
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(mnproject)
+endif()
 
 add_subdirectory(tests)
 

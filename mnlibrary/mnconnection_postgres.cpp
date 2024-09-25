@@ -207,6 +207,7 @@ QString mnconnection_postgres::errorMessage() {
 }
 
 void getColumnNamesFromSelect(PGresult* res,QStringList *columns) {
+    if (!columns) return;
     if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
         throw MNException( "Query is not select") ;
     }
@@ -356,19 +357,10 @@ QString mnconnection_postgres::updateSql(const QString &tableName, const QString
 }
 
 
-mntable mnconnection_postgres::tableDef(const QString &tableName)
+MnTableDef mnconnection_postgres::tableDef(const QString &tableName)
 {
-    mntable table;
+    MnTableDef table;
     table.table_name = tableName;
-
-    const char* conninfo = "dbname=your_database user=your_user password=your_password hostaddr=127.0.0.1 port=5432";
-    PGconn* conn = PQconnectdb(conninfo);
-
-    if (PQstatus(conn)!= CONNECTION_OK) {
-        throw MNException("Connection to database failed: "+ QString(PQerrorMessage(conn)) );
-        PQfinish(conn);
-        return table;
-    }
 
     // Query to get column information and check if indexed
     QString sql = "SELECT column_name, data_type, character_maximum_length, is_nullable, is_unique, "
@@ -376,18 +368,17 @@ mntable mnconnection_postgres::tableDef(const QString &tableName)
                   "FROM information_schema.columns c "
                   "LEFT JOIN pg_index i ON c.table_name = i.indrelid::regclass AND c.column_name = ANY(i.indkey::text[]) "
                   "WHERE c.table_name = '" + tableName + "'";
-    PGresult* res = PQexec(conn, sql.toStdString().c_str());
+    std::string str = sql.toStdString();
+    PGresult* res = PQexec(db, str.c_str());
 
     if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
-        throw "Query failed: " +QString( PQerrorMessage(conn));
         PQclear(res);
-        PQfinish(conn);
-        return table;
+        throw "Query failed: " +QString( PQerrorMessage(db));
     }
 
     int numRows = PQntuples(res);
     for (int i = 0; i < numRows; ++i) {
-        MnField field;
+        MnFieldDef field;
         field.field_name = QString(PQgetvalue(res, i, 0));
         QString typeName = QString(PQgetvalue(res, i, 1));
         if (typeName == "integer") {
@@ -413,7 +404,6 @@ mntable mnconnection_postgres::tableDef(const QString &tableName)
     }
 
     PQclear(res);
-    PQfinish(conn);
     return table;
 
 }

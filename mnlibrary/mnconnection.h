@@ -29,7 +29,7 @@ public:
     virtual int getLastInsertedId(QString idName,QString tableName)=0;
     virtual QString insertSql(const QString &tableName, const QString &fields) =0;
     virtual QString updateSql(const QString &tableName, const QString &fields) =0;
-    virtual mntable tableDef(const QString &tableName )=0;
+    virtual MnTableDef tableDef(const QString &tableName )=0;
 
 };
 

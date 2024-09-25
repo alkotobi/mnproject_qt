@@ -16,19 +16,21 @@ typedef bool (*MnNotify)(QObject *);
 private:
     mnconnection *conn=nullptr;
     QList<QStringList> data={};
+    MNSql _sql;
     int ind = -1;
     int fRecordCount=-1;
-    MNSql _sql;
     bool fActive=false;
     MNQryState fState=stBrowse;
     QList<MnNotify> beforeScrollNtfs;
     QList<MnNotify> afterScrollNtfs;
     QList<MnCustomDataSource*> dataSources;
-    mntable table={};
+    MnTableDef tableDef={};
+    QString sqlText();
+    long long fieldIndex(QString fieldName);
 public:
-    MnQry(mnconnection *conn, const QString& sql, QObject *parent = nullptr);
-    MnQry(mnconnection *conn, mntable table, QObject *parent = nullptr);
-    [[nodiscard]] MNSql sql() const;
+
+    MnQry(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
+    MnQry(mnconnection *conn, QString sql, QObject *parent = nullptr);
     bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
     void close();
@@ -52,6 +54,7 @@ public:
     void removeDataSource(MnCustomDataSource *dts)override;
     QString* fieldByName(const QString& name)override;
     QString* fieldByInd(const int index)override;
+    void print();
 };
 
 #endif // MNQRY_H

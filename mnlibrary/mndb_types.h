@@ -8,9 +8,9 @@
 
 typedef enum{INTEGER,TEXT,REAL,VARCHAR,BLOB,BOOL,DATETIME} DbTypes;
 
-struct MnField {
+struct MnFieldDef {
 public:
-    MnField fromJson(const QString& json_str);
+    MnFieldDef fromJson(const QString& json_str);
     QString field_name;
     DbTypes field_type;
     int field_length;
@@ -29,34 +29,38 @@ public:
     QString to_json() const;
 };
 
-class mntable {
+class MnTableDef {
 public:
     QString table_name;
-    mntable mntable_from_json(const QString& json_str);
-    QVector<MnField> fields;
+    MnTableDef mntable_from_json(const QString& json_str);
+    QVector<MnFieldDef> fields;
     QString default_data;
     QString description;
     QString insert_sql;
     int insert_params_count;
     bool is_view;
     QString create_sql;
-    [[nodiscard]] QString to_json() const;
-    MnField field_by_name(const QString& field_name_to_find);
-    int field_index_by_name(const QString& field_name_to_find);
-    QString select_sql();
+    QString toJson() const;
+    MnFieldDef fieldByName(const QString& field_name_to_find);
+    int fieldIndex(const QString& field_name_to_find);
+    QStringList fieldList();
+    QString fieldsComaSep();
+    QString selectSql();
+    QString inserSql();
+    QString updateSql();
 };
 
-class mndatabase {
+class MnDatabaseDef {
 public:
     QString database_name;
-    QVector<mntable> tables;
+    QVector<MnTableDef> tables;
     double version;
     QString description;
     QString db_path;
-    mndatabase();
-    explicit mndatabase(const QString& json_str);
+    MnDatabaseDef();
+    explicit MnDatabaseDef(const QString& json_str);
     [[nodiscard]] QString to_json() const;
-    mntable table_by_name(const QString& table_name_to_find);
+    MnTableDef table_by_name(const QString& table_name_to_find);
 };
 
 

@@ -44,7 +44,7 @@ DbTypes stringToDbType(QString type) {
 }
 
 
-MnField MnField::fromJson(const QString &json_str)
+MnFieldDef MnFieldDef::fromJson(const QString &json_str)
 {
     QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
     if (!doc.isObject()) return {};
@@ -68,7 +68,7 @@ MnField MnField::fromJson(const QString &json_str)
     return *this;
 }
 
-QString MnField::to_json() const {
+QString MnFieldDef::to_json() const {
     QJsonObject json;
     json["field_name"] = field_name;
     json["field_type"] = dbTypesToString(field_type);
@@ -97,14 +97,14 @@ QString MnField::to_json() const {
 
 
 
-mntable mntable::mntable_from_json(const QString& json_str) {
+MnTableDef MnTableDef::mntable_from_json(const QString& json_str) {
     QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
     if (!doc.isObject()) return{} ;
     QJsonObject json = doc.object();
     table_name = json["table_name"].toString();
     QJsonArray fields_array = json["fields"].toArray();
     for (const QJsonValue& value : fields_array) {
-        fields.append(MnField().fromJson(value.toString()));
+        fields.append(MnFieldDef().fromJson(value.toString()));
     }
     default_data = json["default_data"].toString();
     description = json["description"].toString();
@@ -115,11 +115,11 @@ mntable mntable::mntable_from_json(const QString& json_str) {
     return *this;
 }
 
-QString mntable::to_json() const {
+QString MnTableDef::toJson() const {
     QJsonObject json;
     json["table_name"] = table_name;
     QJsonArray fields_array;
-    for (const MnField& field : fields) {
+    for (const MnFieldDef& field : fields) {
         fields_array.append(field.to_json());
     }
     json["fields"] = fields_array;
@@ -132,8 +132,8 @@ QString mntable::to_json() const {
     return QJsonDocument(json).toJson();
 }
 
-MnField mntable::field_by_name(const QString& field_name_to_find) {
-    for (const MnField& field : fields) {
+MnFieldDef MnTableDef::fieldByName(const QString& field_name_to_find) {
+    for (const MnFieldDef& field : fields) {
         if (field.field_name == field_name_to_find) {
             return field;
         }
@@ -141,7 +141,7 @@ MnField mntable::field_by_name(const QString& field_name_to_find) {
     throw MNException(field_name_to_find+" Not found");
 }
 
-int mntable::field_index_by_name(const QString& field_name_to_find) {
+int MnTableDef::fieldIndex(const QString& field_name_to_find) {
     for (int i = 0; i < fields.size(); ++i) {
         if (fields[i].field_name == field_name_to_find) {
             return i;
@@ -150,7 +150,7 @@ int mntable::field_index_by_name(const QString& field_name_to_find) {
     return -1;
 }
 
-QString mntable::select_sql()
+QString MnTableDef::selectSql()
 {
 
     QString flds = fields[0].field_name;
@@ -161,16 +161,42 @@ QString mntable::select_sql()
     return sql;
 }
 
-mndatabase::mndatabase() {}
+QString MnTableDef::fieldsComaSep() {
+    QString flds = fields[0].field_name;
+    for (int i = 1; i < fields.size(); ++i) {
+        flds = flds +"," + fields[i].field_name ;
+    }
+    return flds;
+}
 
-mndatabase::mndatabase(const QString& json_str) {
+QStringList MnTableDef::fieldList() {
+    QStringList flds = {};
+    for (int i = 1; i < fields.size(); ++i) {
+         flds .append(fields[i].field_name) ;
+    }
+    return flds;
+}
+
+QString MnTableDef::updateSql() {
+    assert(0);
+    return QString();
+}
+
+QString MnTableDef::inserSql() {
+    assert(0);
+    return QString();
+}
+
+MnDatabaseDef::MnDatabaseDef() {}
+
+MnDatabaseDef::MnDatabaseDef(const QString& json_str) {
     QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
     if (!doc.isObject()) return;
     QJsonObject json = doc.object();
     database_name = json["database_name"].toString();
     QJsonArray tables_array = json["tables"].toArray();
     for (const QJsonValue& value : tables_array) {
-        mntable tbl;
+        MnTableDef tbl;
         tbl.mntable_from_json(value.toString());
         tables.append(tbl);
     }
@@ -179,12 +205,12 @@ mndatabase::mndatabase(const QString& json_str) {
     db_path = json["db_path"].toString();
 }
 
-QString mndatabase::to_json() const {
+QString MnDatabaseDef::to_json() const {
     QJsonObject json;
     json["database_name"] = database_name;
     QJsonArray tables_array;
-    for (const mntable& table : tables) {
-        tables_array.append(table.to_json());
+    for (const MnTableDef& table : tables) {
+        tables_array.append(table.toJson());
     }
     json["tables"] = tables_array;
     json["version"] = version;
@@ -193,8 +219,8 @@ QString mndatabase::to_json() const {
     return QJsonDocument(json).toJson();
 }
 
-mntable mndatabase::table_by_name(const QString& table_name_to_find) {
-    for (const mntable& table : tables) {
+MnTableDef MnDatabaseDef::table_by_name(const QString& table_name_to_find) {
+    for (const MnTableDef& table : tables) {
         if (table.table_name == table_name_to_find) {
             return table;
         }

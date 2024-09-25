@@ -35,7 +35,7 @@ private:
   public:
   QString insertSql(const QString &tableName, const QString &fields) override;
   QString updateSql(const QString &tableName, const QString &fields) override;
-  mntable tableDef(const QString &tableName) override;
+  MnTableDef tableDef(const QString &tableName) override;
 };
 
 #endif // MNCONNECTION_SQLITE_H
