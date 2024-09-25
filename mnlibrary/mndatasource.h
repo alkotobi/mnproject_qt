@@ -25,7 +25,8 @@ public:
     // MnCustomDataSource interface
 public:
     void updateControls()override;
-    virtual void updateQry()override;
+    void updateControls(const QString &fieldName)override;
+    virtual void updateQry(const QString &fieldName,const QString &value)override;
     void addControle(MnCustomDbCtrl *ctrl)override;
     void removeControle(MnCustomDbCtrl *ctrl)override;
 };

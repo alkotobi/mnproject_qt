@@ -9,6 +9,8 @@ extern "C" {
 #include "./sqlite3.h"
 }
 
+#include "mndb_types.h"
+
 class mnconnection_sqlite : public mnconnection
 {
 public:
@@ -29,10 +31,11 @@ public:
     int getLastInsertedId(QString idName, QString tableName) override;
 
 private:
-  sqlite3 *db{};
-
-
-
+  sqlite3 *db=nullptr;
+  public:
+  QString insertSql(const QString &tableName, const QString &fields) override;
+  QString updateSql(const QString &tableName, const QString &fields) override;
+  mntable tableDef(const QString &tableName) override;
 };
 
 #endif // MNCONNECTION_SQLITE_H

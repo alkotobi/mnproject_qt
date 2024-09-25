@@ -7,6 +7,7 @@
 #include "mnsql.h"
 #include "mncustomquery.h"
 #include "mncustomdatasource.h"
+#include "mndb_types.h"
 
 typedef enum {stEdit,stInsert,stBrowse} MNQryState;
 class MnQry : public MnCustomQry {
@@ -23,8 +24,10 @@ private:
     QList<MnNotify> beforeScrollNtfs;
     QList<MnNotify> afterScrollNtfs;
     QList<MnCustomDataSource*> dataSources;
+    mntable table={};
 public:
     MnQry(mnconnection *conn, const QString& sql, QObject *parent = nullptr);
+    MnQry(mnconnection *conn, mntable table, QObject *parent = nullptr);
     [[nodiscard]] MNSql sql() const;
     bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
@@ -34,6 +37,12 @@ public:
     bool append();
     bool post();
     bool goTo(int ind);
+    bool next();
+    bool prior();
+    bool last();
+    bool first();
+    bool eof();
+    bool bof();
     bool execBeforeScroll();
     void execAfterScroll();
 

@@ -3,6 +3,7 @@
 #include "mnconnection.h"
 #include <QVariant>
 #include <libpq-fe.h>
+#include "mndb_types.h"
 
 /**
  * @class mnconnection_postgres
@@ -14,7 +15,7 @@
 class mnconnection_postgres : public mnconnection
 {
 private:
-    PGconn *db{};
+    PGconn *db= nullptr;
 public:
     /**
      * @brief Constructor for mnconnection_postgres.
@@ -65,6 +66,12 @@ public:
     bool exec(QString sql, QList<QVariant> &params, QList<QStringList> *dataOut, QStringList *fieldNamesOut) override;
 
     int getLastInsertedId(QString idName,QString tableName) override;
+
+    // mnconnection interface
+public:
+    QString insertSql(const QString &tableName, const QString &fields) override;
+    QString updateSql(const QString &tableName, const QString &fields) override;
+    mntable tableDef(const QString &tableName) override;
 };
 QString convertSqliteToPostgresRegExp(const QString& sqliteSql);
 QString convertSqliteToPostgres(const QString& sqliteSql);

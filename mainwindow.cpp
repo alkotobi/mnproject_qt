@@ -19,6 +19,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::edited()
+{
+        qDebug() <<" edited 1111 hi\n";
+}
+
+void MainWindow::edited2()
+{
+ qDebug() <<" edited 2222 hi\n";
+}
+
 void MainWindow::on_pushButton_clicked()
 {
    /* printf("libpq tutorial\n");
@@ -137,5 +147,16 @@ void MainWindow::on_pushButton_2_clicked()
     l.append(QVariant("lolo"));
     l.append(QVariant("NONO"));
     conn.exec("insert into employees(first_name,last_name) values($1,$2)",l);
+}
+
+void edited()
+{
+    qDebug()<<" edited hi\n";
+}
+
+void MainWindow::on_assign_function_to_signal_clicked()
+{
+    connect(this->ui->lineEdit, &QLineEdit::editingFinished, &MainWindow::edited);
+    connect(this->ui->lineEdit, &QLineEdit::editingFinished, &MainWindow::edited2);
 }
 

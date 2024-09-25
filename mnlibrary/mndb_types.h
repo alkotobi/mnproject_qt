@@ -1,5 +1,4 @@
-#ifndef MNDATASTRUCTURES_H
-#define MNDATASTRUCTURES_H
+#pragma once
 
 #include <QString>
 #include <QVector>
@@ -7,10 +6,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-class mnfield {
+typedef enum{INTEGER,TEXT,REAL,VARCHAR,BLOB,BOOL,DATETIME} DbTypes;
+
+struct MnField {
 public:
+    MnField fromJson(const QString& json_str);
     QString field_name;
-    QString field_type;
+    DbTypes field_type;
     int field_length;
     bool is_unique;
     bool is_not_null;
@@ -24,29 +26,24 @@ public:
     QString display_label;
     bool is_calculated;
     int ind;
-    // bool is_lookup;
-
-    mnfield();
-    explicit mnfield(const QString& json_str);
-    [[nodiscard]] QString to_json() const;
+    QString to_json() const;
 };
 
 class mntable {
 public:
     QString table_name;
-    QVector<mnfield> fields;
+    mntable mntable_from_json(const QString& json_str);
+    QVector<MnField> fields;
     QString default_data;
     QString description;
     QString insert_sql;
     int insert_params_count;
     bool is_view;
     QString create_sql;
-
-    mntable();
-    explicit mntable(const QString& json_str);
     [[nodiscard]] QString to_json() const;
-    mnfield field_by_name(const QString& field_name_to_find);
+    MnField field_by_name(const QString& field_name_to_find);
     int field_index_by_name(const QString& field_name_to_find);
+    QString select_sql();
 };
 
 class mndatabase {
@@ -56,11 +53,10 @@ public:
     double version;
     QString description;
     QString db_path;
-
     mndatabase();
     explicit mndatabase(const QString& json_str);
     [[nodiscard]] QString to_json() const;
     mntable table_by_name(const QString& table_name_to_find);
 };
 
-#endif // MNDATASTRUCTURES_H
+

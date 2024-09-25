@@ -7,6 +7,8 @@
 #include "./gui/mncustomdbctrl.h"
 
 void MnDataSource::setQry(MnCustomQry *qry) {
+    if(_qry) _qry->removeDataSource(this);
+    _qry = qry;
     qry->addDataSource(this);
 }
 
@@ -23,12 +25,21 @@ void MnDataSource::updateControls()
     }
 }
 
-void MnDataSource::updateQry()
+void MnDataSource::updateControls(const QString &fieldName)
 {
     for (int i = 0; i < controls.count(); ++i) {
-        //TODO:beforeUpdateField
-        *(this->_qry->fieldByName(controls[i]->fieldName())) = controls[i]->dbText();
+        if(controls[i]->fieldName()!=fieldName) continue;
+        QString str = *(this->_qry->fieldByName(controls[i]->fieldName()));
+        controls[i]->setDbText(str);
     }
+}
+
+void MnDataSource::updateQry(const QString &fieldName,const QString &value)
+{
+    //TODO:beforeUpdateField
+    *(this->_qry->fieldByName(fieldName)) = value;
+
+
 }
 
 

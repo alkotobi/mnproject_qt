@@ -21,7 +21,17 @@ bool MnQry::exec(const QString& sql, const QList<QVariant>& params)
 MnQry::MnQry(mnconnection *conn, const QString& sql, QObject *parent )
     :MnCustomQry(parent),_sql(sql)
 {
+    //TODO MAKE TH MNTABLE FROM SQL
     this->conn=conn;
+    this->table = conn->tableDef(_sql.tableName());
+}
+
+MnQry::MnQry(mnconnection *conn, mntable table, QObject *parent)
+:MnQry(conn,table.select_sql(),parent)
+{
+    //TODO:CAN BE FASTER BY CREATING _sql better way
+    this->table = table;
+
 }
 
 void MnQry::close() {
@@ -72,12 +82,18 @@ bool MnQry::append() {
 }
 
 bool MnQry::post() {
-
+    if(data[ind][0] == ""){
+       //do insert
+        this->conn->insertSql(_sql.tableName(),_sql.fields()->join(","));
+    }else{
+       //do update
+    }
     fState=stBrowse;
     return false;
 }
 
 bool MnQry::goTo(int ind) {
+    if (data.empty()) return false;
     if (!execBeforeScroll()) return false;
     if(ind <0 && ind>= data.count()){
         qCritical()<< "index out of range\n";
@@ -89,6 +105,10 @@ bool MnQry::goTo(int ind) {
     }
     this->ind = ind;
     execAfterScroll();
+    //update controls
+    for (int i = 0; i < dataSources.count(); ++i) {
+        dataSources[i]->updateControls();
+    }
     return true;
 }
 
@@ -127,6 +147,47 @@ QString *MnQry::fieldByName(const QString &name)
 QString *MnQry::fieldByInd(const int index)
 {
     return &(data[this->ind][index]);
+}
+
+bool MnQry::next() {
+    if (ind != data.count()-1){
+        goTo(ind+1);
+        return true;
+    }
+    return false;
+}
+
+bool MnQry::prior() {
+    if (ind != 0){
+        goTo(ind-1);
+        return true;
+    }
+    return false;
+}
+
+bool MnQry::last() {
+    int i =data.count()-1;
+    if (ind != i){
+        goTo(i);
+        return true;
+    }
+    return false;
+}
+
+bool MnQry::first() {
+    if (ind != 0){
+        goTo(0);
+        return true;
+    }
+    return false;
+}
+
+bool MnQry::eof() {
+    return ind == data.count()-1;
+}
+
+bool MnQry::bof() {
+    return ind == 0;
 }
 
 

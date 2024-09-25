@@ -1,13 +1,56 @@
 #include "mndb_types.h"
+#include "mnexception.h"
 
-mnfield::mnfield() {}
 
-mnfield::mnfield(const QString& json_str) {
+QString dbTypesToString(DbTypes type) {
+    switch (type) {
+    case INTEGER:
+        return "INTEGER";
+    case TEXT:
+        return "TEXT";
+    case REAL:
+        return "REAL";
+    case VARCHAR:
+        return "VARCHAR";
+    case BLOB:
+        return "BLOB";
+    case BOOL:
+        return "BOOL";
+    case DATETIME:
+        return "DATETIME";
+    default:
+        throw MNException("dbTypesToString :UNKNOWN TYPE");
+    }
+}
+
+DbTypes stringToDbType(QString type) {
+    if (type == "INTEGER") {
+        return INTEGER;
+    } else if (type == "TEXT") {
+        return TEXT;
+    } else if (type == "REAL") {
+        return REAL;
+    } else if (type == "VARCHAR") {
+        return VARCHAR;
+    } else if (type == "BLOB") {
+        return BLOB;
+    } else if (type == "BOOL") {
+        return BOOL;
+    } else if (type == "DATETIME") {
+        return DATETIME;
+    } else {
+        throw MNException("stringToDbType :UNKNOWN TYPE");
+    }
+}
+
+
+MnField MnField::fromJson(const QString &json_str)
+{
     QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
-    if (!doc.isObject()) return;
+    if (!doc.isObject()) return {};
     QJsonObject json = doc.object();
     field_name = json["field_name"].toString();
-    field_type = json["field_type"].toString();
+    field_type = stringToDbType(json["field_type"].toString());
     field_length = json["field_length"].toInt();
     is_unique = json["is_unique"].toBool();
     is_not_null = json["is_not_null"].toBool();
@@ -22,12 +65,13 @@ mnfield::mnfield(const QString& json_str) {
     is_calculated = json["is_calculated"].toBool();
     ind = json["ind"].toInt();
     // is_lookup = json["is_lookup"].toBool();
+    return *this;
 }
 
-QString mnfield::to_json() const {
+QString MnField::to_json() const {
     QJsonObject json;
     json["field_name"] = field_name;
-    json["field_type"] = field_type;
+    json["field_type"] = dbTypesToString(field_type);
     json["field_length"] = field_length;
     json["is_unique"] = is_unique;
     json["is_not_null"] = is_not_null;
@@ -45,16 +89,22 @@ QString mnfield::to_json() const {
     return QJsonDocument(json).toJson();
 }
 
-mntable::mntable() {}
 
-mntable::mntable(const QString& json_str) {
+// mntable::mntable()
+// {
+//     this->table_name ="";
+// }
+
+
+
+mntable mntable::mntable_from_json(const QString& json_str) {
     QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
-    if (!doc.isObject()) return;
+    if (!doc.isObject()) return{} ;
     QJsonObject json = doc.object();
     table_name = json["table_name"].toString();
     QJsonArray fields_array = json["fields"].toArray();
     for (const QJsonValue& value : fields_array) {
-        fields.append(mnfield(value.toString()));
+        fields.append(MnField().fromJson(value.toString()));
     }
     default_data = json["default_data"].toString();
     description = json["description"].toString();
@@ -62,13 +112,14 @@ mntable::mntable(const QString& json_str) {
     insert_params_count = json["insert_params_count"].toInt();
     is_view = json["is_view"].toBool();
     create_sql = json["create_sql"].toString();
+    return *this;
 }
 
 QString mntable::to_json() const {
     QJsonObject json;
     json["table_name"] = table_name;
     QJsonArray fields_array;
-    for (const mnfield& field : fields) {
+    for (const MnField& field : fields) {
         fields_array.append(field.to_json());
     }
     json["fields"] = fields_array;
@@ -81,14 +132,13 @@ QString mntable::to_json() const {
     return QJsonDocument(json).toJson();
 }
 
-mnfield mntable::field_by_name(const QString& field_name_to_find) {
-    for (const mnfield& field : fields) {
+MnField mntable::field_by_name(const QString& field_name_to_find) {
+    for (const MnField& field : fields) {
         if (field.field_name == field_name_to_find) {
             return field;
         }
     }
-    // Return an empty mnfield if not found.
-    return mnfield();
+    throw MNException(field_name_to_find+" Not found");
 }
 
 int mntable::field_index_by_name(const QString& field_name_to_find) {
@@ -100,6 +150,17 @@ int mntable::field_index_by_name(const QString& field_name_to_find) {
     return -1;
 }
 
+QString mntable::select_sql()
+{
+
+    QString flds = fields[0].field_name;
+    for (int i = 1; i < fields.size(); ++i) {
+        flds = flds +"," + fields[i].field_name ;
+    }
+        QString sql = "SELECT " +flds+" FORM "+table_name;
+    return sql;
+}
+
 mndatabase::mndatabase() {}
 
 mndatabase::mndatabase(const QString& json_str) {
@@ -109,7 +170,9 @@ mndatabase::mndatabase(const QString& json_str) {
     database_name = json["database_name"].toString();
     QJsonArray tables_array = json["tables"].toArray();
     for (const QJsonValue& value : tables_array) {
-        tables.append(mntable(value.toString()));
+        mntable tbl;
+        tbl.mntable_from_json(value.toString());
+        tables.append(tbl);
     }
     version = json["version"].toDouble();
     description = json["description"].toString();
@@ -136,7 +199,10 @@ mntable mndatabase::table_by_name(const QString& table_name_to_find) {
             return table;
         }
     }
-    // Return an empty mntable if not found.
-    return mntable();
+    throw MNException(table_name_to_find + " not found");
 }
 
+
+// int main(){
+//     printf("hello world\n");
+// };

@@ -7,6 +7,8 @@ class MnCustomDbCtrl
 {
     MnCustomDataSource *_dataSource=nullptr;
     QString _fieldName="";
+public slots:
+    virtual void editFinished()=0;
 public:
     MnCustomDbCtrl();
     MnCustomDataSource *dataSource();
