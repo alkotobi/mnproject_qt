@@ -34,8 +34,8 @@ private:
   sqlite3 *db=nullptr;
   public:
   QString insertSql(const QString &tableName, const QString &fields) override;
-  QString updateSql(const QString &tableName, const QString &fields) override;
-  MnTableDef tableDef(const QString &tableName) override;
+  QString updateSql(const QString &tableName, const QString &fields, const QString &where) override;
+  MnTableDef tableDef(const QString &tableName, const QStringList &fields) override;
 };
 
 #endif // MNCONNECTION_SQLITE_H

@@ -8,7 +8,7 @@ int id_names = 0;
 mnconnection_postgres::mnconnection_postgres(QString db_name, QString server,
                                              int port, QString user_name,
                                              QString password, QObject *parent)
-    : mnconnection(db_name, Postgres, server, port, user_name, password, parent) {
+        : mnconnection(db_name, Postgres, server, port, user_name, password, parent) {
     db= nullptr;
 }
 
@@ -88,53 +88,60 @@ void fillParamsArrays(QList<QVariant> &params, mncstr_array &param_values,
     const char *buffer = nullptr;
     for (int i = 0; i < params.count(); ++i) {
         switch (params[i].typeId()) {
-        case QMetaType::QString: {
-            std::string ss = params[i].toString().toStdString();
-            buffer = ss.c_str();
-            mncstr_array_add_with_size(&param_values, buffer, strlen(buffer) + 1);
-            mnarray_add_int(&param_lengths, (int)strlen(buffer) + 1);
-            mnarray_add_int(&param_formats, 0);
-        } break;
-        case QMetaType::Int: {
-            int val = params[i].toInt();
-            mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(int));
-            mnarray_add_int(&param_lengths, sizeof(int));
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        case QMetaType::Double: {
-            double val = params[i].toDouble();
-            mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(double));
-            mnarray_add_int(&param_lengths, sizeof(double));
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        case QMetaType::Nullptr: {
-            int val = 0;
-            mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(int));
-            mnarray_add_int(&param_lengths, 0);
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        case QMetaType::Bool: {
-            char val = params[i].toBool()? 1 : 0;
-            mncstr_array_add_with_size(&param_values, (char*)&val, 1);
-            mnarray_add_int(&param_lengths, 1);
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        case QMetaType::Long: {
-            long int val = params[i].toLongLong();
-            mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(long));
-            mnarray_add_int(&param_lengths, sizeof(long));
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        case QMetaType::LongLong: {
-            long long int val = params[i].toLongLong();
-            mncstr_array_add_with_size(&param_values, (char*)&val, sizeof(long long));
-            mnarray_add_int(&param_lengths, sizeof(long long));
-            mnarray_add_int(&param_formats, 1);
-        } break;
-        default:
-            qCritical() << "Unsupported data type"<<"\n";
-            throw MNException(QString("fillParamsArrays Unsupported data type"));
-            break;
+            case QMetaType::QString: {
+                std::string ss = params[i].toString().toStdString();
+                buffer = ss.c_str();
+                mncstr_array_add_with_size(&param_values, buffer, strlen(buffer) + 1);
+                mnarray_add_int(&param_lengths, (int)strlen(buffer) + 1);
+                mnarray_add_int(&param_formats, 0);
+            } break;
+            case QMetaType::Int: {
+                int val = params[i].toInt();
+                mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(int));
+                mnarray_add_int(&param_lengths, sizeof(int));
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::Double: {
+                double val = params[i].toDouble();
+                mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(double));
+                mnarray_add_int(&param_lengths, sizeof(double));
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::Nullptr: {
+                int val = 0;
+                mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(int));
+                mnarray_add_int(&param_lengths, 0);
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::Bool: {
+                char val = params[i].toBool()? 1 : 0;
+                mncstr_array_add_with_size(&param_values, (char*)&val, 1);
+                mnarray_add_int(&param_lengths, 1);
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::Long: {
+                long int val = params[i].toLongLong();
+                mncstr_array_add_with_size(&param_values,(char*) &val, sizeof(long));
+                mnarray_add_int(&param_lengths, sizeof(long));
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::LongLong: {
+                long long int val = params[i].toLongLong();
+                mncstr_array_add_with_size(&param_values, (char*)&val, sizeof(long long));
+                mnarray_add_int(&param_lengths, sizeof(long long));
+                mnarray_add_int(&param_formats, 1);
+            } break;
+            case QMetaType::QByteArray: {
+                QByteArray byteArray = params[i].toByteArray();
+                mncstr_array_add_with_size(&param_values,byteArray.data(), byteArray.size());
+                mnarray_add_int(&param_lengths, byteArray.size());
+                mnarray_add_int(&param_formats, 1);
+            }
+                break;
+            default:
+                qCritical() << "Unsupported data type"<<"\n";
+                throw MNException(QString("fillParamsArrays Unsupported data type"));
+                break;
         }
     }
 
@@ -311,29 +318,6 @@ int mnconnection_postgres::getLastInsertedId(QString idName,QString tableName) {
 }
 
 
-/*
-QString mnconnection_sqlite::insertSql(const QString &tableName, const QString &fields)
-{
-    int count = fields.count(',');
-    QString par ="";
-    for (int i = 0; i <= count; ++i) {
-        par = par + "?";
-    }
-
-    return "INSERT INTO "+tableName+"("+fields+") VALUES("+par+");";
-}
-
-QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &fields)
-{
-    QStringList l = fields.split(',');
-    QString s= "UPDATE "+tableName+" SET " + l[0]+="?";
-    for (int i = 1; i < l.count()-1; ++i) {
-        s = s + ","+l[i]+"=?";
-    }
-    return s;
-}
- */
-
 QString mnconnection_postgres::insertSql(const QString &tableName, const QString &fields)
 {
     int count = fields.count(',');
@@ -346,48 +330,60 @@ QString mnconnection_postgres::insertSql(const QString &tableName, const QString
     return "INSERT INTO "+tableName+"("+fields+") VALUES("+par+");";
 }
 
-QString mnconnection_postgres::updateSql(const QString &tableName, const QString &fields)
+QString mnconnection_postgres::updateSql(const QString &tableName, const QString &fields, const QString &where)
 {
+
     QStringList l = fields.split(',');
     QString s= "UPDATE "+tableName+" SET " + l[0]+="$1";
     for (int i = 1; i < l.count()-1; ++i) {
         s = s + ","+l[i]+"=$"+QString::number(i+1);
     }
+    if (where !=""){
+        int placeholderCount = 1;
+        QString postgresSql = where;
+        int index =(int) postgresSql.indexOf('?');
+        while (index!= -1) {
+            QString plc="$"+QString::number(placeholderCount++);
+            postgresSql.replace(index, 1, plc);
+            index =(int) postgresSql.indexOf('?');
+        }
+        s= s + " WHERE "+postgresSql;
+    }
     return s;
 }
 
 
-MnTableDef mnconnection_postgres::tableDef(const QString &tableName)
+MnTableDef mnconnection_postgres::tableDef(const QString &tableName, const QStringList &fields)
 {
     MnTableDef table;
     table.table_name = tableName;
 
-    // Query to get column information and check if indexed
-    QString sql = "SELECT column_name, data_type, character_maximum_length, is_nullable, is_unique, "
-                  "(CASE WHEN i.indisprimary OR i.indisunique THEN true ELSE false END) as is_indexed "
-                  "FROM information_schema.columns c "
-                  "LEFT JOIN pg_index i ON c.table_name = i.indrelid::regclass AND c.column_name = ANY(i.indkey::text[]) "
-                  "WHERE c.table_name = '" + tableName + "'";
-    std::string str = sql.toStdString();
-    PGresult* res = PQexec(db, str.c_str());
+
+    // Query to get column information
+    QString sql = "SELECT column_name, data_type, character_maximum_length FROM information_schema.columns WHERE table_name = '" + tableName + "'";
+    PGresult* res = PQexec(db, sql.toStdString().c_str());
 
     if (PQresultStatus(res)!= PGRES_TUPLES_OK) {
+        qDebug() << "Query failed: " << PQerrorMessage(db) << "\n";
         PQclear(res);
-        throw "Query failed: " +QString( PQerrorMessage(db));
+        throw MNException("Query failed: " +QString(PQerrorMessage(db)));
     }
 
     int numRows = PQntuples(res);
     for (int i = 0; i < numRows; ++i) {
+        if (!fields.isEmpty())
+            if(!fields.contains(QString(PQgetvalue(res, i, 0)))) continue;
         MnFieldDef field;
         field.field_name = QString(PQgetvalue(res, i, 0));
         QString typeName = QString(PQgetvalue(res, i, 1));
         if (typeName == "integer") {
             field.field_type = INTEGER;
-        } else if (typeName == "text") {
+        }
+        else if (typeName == "text") {
             field.field_type = TEXT;
         } else if (typeName == "real" || typeName == "double precision") {
             field.field_type = REAL;
-        } else if (typeName == "varchar") {
+        } else if (typeName == "varchar" || typeName =="character varying") {
             field.field_type = VARCHAR;
         } else if (typeName == "bytea") {
             field.field_type = BLOB;
@@ -397,9 +393,6 @@ MnTableDef mnconnection_postgres::tableDef(const QString &tableName)
             field.field_type = DATETIME;
         }
         field.field_length = QString(PQgetvalue(res, i, 2)).toInt();
-        field.is_not_null = QString(PQgetvalue(res, i, 3)) == "NO"? false : true;
-        field.is_unique = QString(PQgetvalue(res, i, 4)) == "YES"? true : false;
-        field.is_indexed = QString(PQgetvalue(res, i, 5)) == "t"? true : false;
         table.fields.push_back(field);
     }
 

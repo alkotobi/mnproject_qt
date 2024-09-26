@@ -1,5 +1,6 @@
 #include "mndb_types.h"
 #include "mnexception.h"
+#include <iostream>
 
 
 QString dbTypesToString(DbTypes type) {
@@ -103,6 +104,7 @@ MnTableDef MnTableDef::mntable_from_json(const QString& json_str) {
     QJsonObject json = doc.object();
     table_name = json["table_name"].toString();
     QJsonArray fields_array = json["fields"].toArray();
+    fields.append(mnfieldId);
     for (const QJsonValue& value : fields_array) {
         fields.append(MnFieldDef().fromJson(value.toString()));
     }
@@ -157,7 +159,7 @@ QString MnTableDef::selectSql()
     for (int i = 1; i < fields.size(); ++i) {
         flds = flds +"," + fields[i].field_name ;
     }
-        QString sql = "SELECT " +flds+" FORM "+table_name;
+        QString sql = "SELECT " +flds+" FROM "+table_name;
     return sql;
 }
 
@@ -185,6 +187,46 @@ QString MnTableDef::updateSql() {
 QString MnTableDef::inserSql() {
     assert(0);
     return QString();
+}
+
+void MnTableDef::print() {
+
+    std::cout << "Table Name: " << table_name.toStdString() << std::endl;
+    std::cout << "Description: " << description.toStdString() << std::endl;
+    std::cout << "Default Data: " << default_data.toStdString() << std::endl;
+    std::cout << "Insert SQL: " << insert_sql.toStdString() << std::endl;
+    std::cout << "Insert Params Count: " << insert_params_count << std::endl;
+    std::cout << "Is View: " << (is_view? "true" : "false") << std::endl;
+    std::cout << "Create SQL: " << create_sql.toStdString() << std::endl;
+
+    std::cout << "Fields:" << std::endl;
+    for (const MnFieldDef& field : fields) {
+        QString typeStr;
+        switch (field.field_type) {
+            case INTEGER: typeStr = "INTEGER"; break;
+            case TEXT: typeStr = "TEXT"; break;
+            case REAL: typeStr = "REAL"; break;
+            case VARCHAR: typeStr = "VARCHAR"; break;
+            case BLOB: typeStr = "BLOB"; break;
+            case BOOL: typeStr = "BOOL"; break;
+            case DATETIME: typeStr = "DATETIME"; break;
+        }
+        std::cout << "  Field Name: " << field.field_name.toStdString() << std::endl;
+        std::cout << "    Type: " << typeStr.toStdString() << std::endl;
+        std::cout << "    Length: " << field.field_length << std::endl;
+        std::cout << "    Unique: " << (field.is_unique? "true" : "false") << std::endl;
+        std::cout << "    Not Null: " << (field.is_not_null? "true" : "false") << std::endl;
+        std::cout << "    Indexed: " << (field.is_indexed? "true" : "false") << std::endl;
+        std::cout << "    Default Value: " << field.default_value.toStdString() << std::endl;
+        std::cout << "    Description: " << field.description.toStdString() << std::endl;
+        std::cout << "    Required: " << (field.is_required? "true" : "false") << std::endl;
+        std::cout << "    Visible: " << (field.is_visible? "true" : "false") << std::endl;
+        std::cout << "    Read Only: " << (field.is_read_only? "true" : "false") << std::endl;
+        std::cout << "    Display Width: " << field.display_width << std::endl;
+        std::cout << "    Display Label: " << field.display_label.toStdString() << std::endl;
+        std::cout << "    Calculated: " << (field.is_calculated? "true" : "false") << std::endl;
+        std::cout << "    Index: " << field.ind << std::endl;
+    }
 }
 
 MnDatabaseDef::MnDatabaseDef() {}

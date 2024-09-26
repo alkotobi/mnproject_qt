@@ -3,8 +3,7 @@
 #include "mnexception.h"
 
 MNSql::MNSql(QString sql) {
-    fText = sql;
-    fChanged = false;
+    fText = "";
     QString lowerCaseSql = sql.toLower();
     sql = removeExtraSpacesForSqlText(sql);
     lowerCaseSql = lowerCaseSql.remove(0, 7).replace(";", "");
@@ -50,6 +49,11 @@ MNSql::MNSql(QString sql) {
         throw MNException(QString("wrong sql: " + sql));
 
     fFields = strs[0].simplified().split(",");
+    if (!fFields.contains("*") && !fFields.contains("id")){
+        fFields.insert(0,"id");
+    }
+        fChanged = true;
+
 }
 
 bool MNSql::isChanged() {
@@ -78,6 +82,7 @@ QStringList MNSql::insertFields() {
             flds.append(strs2[0]);
         }
     }
+    flds.removeOne("id");
     fInsertFields = flds;
     return flds;
 }
@@ -110,21 +115,18 @@ QString MNSql::text() {
 
 }
 
-void MNSql::setFields(QStringList AValue) {
+void MNSql::setFields(const QStringList& AValue) {
     fFields.clear();
     fFields.append(AValue);
     fChanged = true;
 }
 
-void MNSql::setGroupedBy(QString AValue) {
+void MNSql::setGroupedBy(const QString& AValue) {
     if(fGroupedBy == AValue) return;
     fGroupedBy = AValue;
     fChanged = true;
 }
 
-void MNSql::setInsertFields(QStringList AValue) {
-    fInsertFields = AValue;
-}
 
 void MNSql::setLimit(int AValue) {
     if (fLimit == AValue) return;
@@ -170,8 +172,36 @@ QString MNSql::tableName() {
     return fTableName;
 }
 
-QStringList* MNSql::fields() {
-    return &fFields;
+void MNSql::fieldsClear() {
+    fFields.clear();
 }
+
+void MNSql::fieldAppend(const QString& fld) {
+    fFields.append(fld);
+}
+
+
+
+
+
+bool MNSql::fieldsContains(const QString &fld) {
+    if (fld == "id") return true;
+    return fFields.contains(fld);
+}
+
+void MNSql::fieldAppend(const QStringList &flds) {
+    fFields.append(flds);
+}
+
+void MNSql::insertFieldsClear() {
+    fInsertFields.clear();
+
+}
+
+QStringList MNSql::fields() {
+    return fFields;
+}
+
+
 
 

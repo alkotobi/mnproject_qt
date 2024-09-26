@@ -13,19 +13,19 @@ public:
     MnFieldDef fromJson(const QString& json_str);
     QString field_name;
     DbTypes field_type;
-    int field_length;
-    bool is_unique;
-    bool is_not_null;
-    bool is_indexed;
-    QString default_value;
-    QString description;
-    bool is_required;
-    bool is_visible;
-    bool is_read_only;
-    int display_width;
-    QString display_label;
-    bool is_calculated;
-    int ind;
+    int field_length=0;
+    bool is_unique= false;
+    bool is_not_null= false;
+    bool is_indexed= false;
+    QString default_value="";
+    QString description="";
+    bool is_required= false;
+    bool is_visible= true;
+    bool is_read_only= false;
+    int display_width=30;
+    QString display_label="";
+    bool is_calculated= false;
+    int ind=-1;
     QString to_json() const;
 };
 
@@ -34,12 +34,12 @@ public:
     QString table_name;
     MnTableDef mntable_from_json(const QString& json_str);
     QVector<MnFieldDef> fields;
-    QString default_data;
-    QString description;
-    QString insert_sql;
-    int insert_params_count;
-    bool is_view;
-    QString create_sql;
+    QString default_data="";
+    QString description="";
+    QString insert_sql="";
+    int insert_params_count=0;
+    bool is_view=false;
+    QString create_sql="";
     QString toJson() const;
     MnFieldDef fieldByName(const QString& field_name_to_find);
     int fieldIndex(const QString& field_name_to_find);
@@ -48,6 +48,25 @@ public:
     QString selectSql();
     QString inserSql();
     QString updateSql();
+    void print();
+};
+
+const struct MnFieldDef mnfieldId = {
+        .field_name = "id",
+        .field_type = INTEGER,
+        .field_length = 0,
+        .is_unique = true,
+        .is_not_null = true,
+        .is_indexed = false,
+        .default_value = "",
+        .description = "",
+        .is_required = true,
+        .is_visible = false,
+        .is_read_only = false,
+        .display_width = 20,
+        .display_label = "",
+        .is_calculated = false,
+        .ind = 0
 };
 
 class MnDatabaseDef {

@@ -1,3 +1,4 @@
+#include <QBitArray>
 #include "mnconnection_sqlite.h"
 #include "mnexception.h"
 
@@ -76,7 +77,11 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
             case QMetaType::LongLong:
                 rc = sqlite3_bind_int64(stmt, i + 1, params[i].toLongLong());
                 break;
-
+            case QMetaType::QByteArray: {
+                QByteArray byteArray = params[i].toByteArray();
+                sqlite3_bind_blob(stmt, 1, byteArray.data(), byteArray.size(), SQLITE_TRANSIENT);
+            }
+                break;
             default:
                 throw MNException("TYPE INHANDELED");
                 break;
@@ -153,6 +158,11 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> &params, QList<QStri
             case QMetaType::LongLong:
                 rc = sqlite3_bind_int64(stmt, i + 1, params[i].toLongLong());
                 break;
+            case QMetaType::QByteArray: {
+                QByteArray byteArray = params[i].toByteArray();
+                sqlite3_bind_blob(stmt, 1, byteArray.data(), byteArray.size(), SQLITE_TRANSIENT);
+            }
+                break;
 
             default:
                 throw MNException("TYPE INHANDELED");
@@ -226,81 +236,69 @@ QString mnconnection_sqlite::insertSql(const QString &tableName, const QString &
     return "INSERT INTO "+tableName+"("+fields+") VALUES("+par+");";
 }
 
-QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &fields)
+QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &fields, const QString &where)
 {
     QStringList l = fields.split(',');
     QString s= "UPDATE "+tableName+" SET " + l[0]+="?";
     for (int i = 1; i < l.count()-1; ++i) {
         s = s + ","+l[i]+"=?";
     }
+    if (where != ""){
+        s = s + " WHERE "+where;
+    }
     return s;
 }
 
 
-MnTableDef mnconnection_sqlite::tableDef(const QString& tableName) {
+MnTableDef mnconnection_sqlite::tableDef(const QString &tableName, const QStringList &fields) {
     MnTableDef table;
     table.table_name = tableName;
+
+
 
     // Query to get column information
     QString sql = "PRAGMA table_info(" + tableName + ")";
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2(db, sql.toStdString().c_str(), -1, &stmt, nullptr);
     if (rc!= SQLITE_OK) {
-        throw "Error preparing statement: " +QString( sqlite3_errmsg(db));
+        qDebug()<<"Error preparing statement: "<< sqlite3_errmsg(db) <<"\n";
+        sqlite3_finalize(stmt);
+        throw  MNException("Error preparing statement: " +QString(sqlite3_errmsg(db)));
     }
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        if (!fields.isEmpty())
+            if (!fields.contains(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)))))
+                continue;
         MnFieldDef field;
         field.field_name = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
         QString typeName = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-        if (typeName.contains("INT")) {
+        if (typeName == "INTEGER") {
             field.field_type = INTEGER;
-        } else if (typeName.contains("TEXT")) {
+        } else if (typeName == "TEXT") {
             field.field_type = TEXT;
-        } else if (typeName.contains("REAL")) {
+        } else if (typeName == "REAL") {
             field.field_type = REAL;
-        } else if (typeName.contains("VARCHAR")) {
+        } else if (typeName == "VARCHAR") {
             field.field_type = VARCHAR;
-        } else if (typeName.contains("BLOB")) {
+        } else if (typeName == "BLOB") {
             field.field_type = BLOB;
-        } else if (typeName.contains("BOOL")) {
+        } else if (typeName == "BOOL") {
             field.field_type = BOOL;
-        } else if (typeName.contains("DATETIME")) {
+        } else if (typeName == "DATETIME") {
             field.field_type = DATETIME;
         }
         field.field_length = sqlite3_column_int(stmt, 3);
-        field.is_unique = sqlite3_column_int(stmt, 5)!= 0;
-        field.is_not_null = sqlite3_column_int(stmt, 4)!= 0;
-        QString indexSql = "PRAGMA index_list(" + tableName + ")";
-        sqlite3_stmt* indexStmt;
-        sqlite3_prepare_v2(db, indexSql.toStdString().c_str(), -1, &indexStmt, nullptr);
-        bool foundInIndex = false;
-        while ((sqlite3_step(indexStmt)) == SQLITE_ROW) {
-            QString indexName = QString(reinterpret_cast<const char*>(sqlite3_column_text(indexStmt, 1)));
-            QString indexInfoSql = "PRAGMA index_info(" + indexName + ")";
-            sqlite3_stmt* indexInfoStmt;
-            sqlite3_prepare_v2(db, indexInfoSql.toStdString().c_str(), -1, &indexInfoStmt, nullptr);
-            while ((sqlite3_step(indexInfoStmt)) == SQLITE_ROW) {
-                if (QString(reinterpret_cast<const char*>(sqlite3_column_text(indexInfoStmt, 2))) == field.field_name) {
-                    foundInIndex = true;
-                    break;
-                }
-            }
-            sqlite3_finalize(indexInfoStmt);
-            if (foundInIndex) break;
-        }
-        field.is_indexed = foundInIndex;
-
-        sqlite3_finalize(indexStmt);
         table.fields.append(field);
     }
 
     if (rc!= SQLITE_DONE) {
-        throw "Error stepping through statement: " +QString( sqlite3_errmsg(db));
+        qDebug()<< "Error stepping through statement: " +QString(sqlite3_errmsg(db)) << "\n";
+        sqlite3_finalize(stmt);
+        throw MNException("Error stepping through statement: " +QString(sqlite3_errmsg(db)));
     }
 
     sqlite3_finalize(stmt);
-    sqlite3_close(db);
     return table;
 }
 

@@ -17,7 +17,7 @@ private:
     mnconnection *conn=nullptr;
     QList<QStringList> data={};
     MNSql _sql;
-    int ind = -1;
+    int row = -1;
     int fRecordCount=-1;
     bool fActive=false;
     MNQryState fState=stBrowse;
@@ -26,7 +26,7 @@ private:
     QList<MnCustomDataSource*> dataSources;
     MnTableDef tableDef={};
     QString sqlText();
-    long long fieldIndex(QString fieldName);
+    QList<QVariant> toVariants(const QStringList& fields);
 public:
 
     MnQry(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
@@ -43,18 +43,18 @@ public:
     bool prior();
     bool last();
     bool first();
-    bool eof();
-    bool bof();
     bool execBeforeScroll();
     void execAfterScroll();
-
-    // MnCustomQry interface
-public:
     void addDataSource(MnCustomDataSource *dts) override;
     void removeDataSource(MnCustomDataSource *dts)override;
     QString* fieldByName(const QString& name)override;
     QString* fieldByInd(const int index)override;
-    void print();
+    int fieldIndex(const QString& fieldName);
+    void printCurrent();
+    void printAll();
+    void printTableDef();
+    QStringList rowAt(int row);
+    int rowNo();
 };
 
 #endif // MNQRY_H

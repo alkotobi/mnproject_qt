@@ -1,6 +1,6 @@
 #include "mnqry.h"
 #include "mnexception.h"
-
+#include <iostream>
 
 
 
@@ -38,13 +38,23 @@ bool MnQry::open(QList<QVariant> params) {
     if(fActive){
         throw MNException("can not perform this operation on an open qry");
     }
-    QStringList *fld = _sql.fields();
-    if(fld->contains("*")){
-        fld->clear();
+    QStringList fld ={};
+    QStringList* fldPtr = &fld;
+    QString s =sqlText();
+    if(_sql.fieldsContains("*")){
+        _sql.fieldsClear();
     }else{
-        fld = nullptr;
+        fldPtr = nullptr;
     }
-   bool ret= this->conn->exec(sqlText(), params, &data, fld);
+   bool ret= this->conn->exec(s, params, &data, fldPtr);
+    if (fldPtr){
+        if(!fld.contains("id")){
+            fld.insert(0,"id");
+        }
+        tableDef = conn->tableDef(_sql.tableName(), fld);
+        _sql.fieldAppend(fld);
+        _sql.insertFieldsClear();
+    }
     fRecordCount = (int)data.count();
     if (ret) {
         fActive = true;
@@ -62,7 +72,7 @@ bool MnQry::append() {
     if (fState != stBrowse) post();
     fState=stInsert;
     QStringList l;
-    for (int i =0;i<_sql.fields()->count();i++){
+    for (int i =0;i<_sql.insertFields().count();i++){
         l.append("");
     }
     data.append(l);
@@ -74,11 +84,13 @@ bool MnQry::append() {
 }
 
 bool MnQry::post() {
-    if(data[ind][0] == ""){
+    if(data[row][0] == ""){
        //do insert
-        this->conn->insertSql(_sql.tableName(),_sql.fields()->join(","));
+        this->conn->insertSql(_sql.tableName(),_sql.insertFields().join(","));
+
     }else{
        //do update
+      this->conn->exec(this->conn->updateSql(_sql.tableName(),_sql.insertFields().join(","),"id="+data[row][0]), toVariants(_sql.insertFields()));
     }
     fState=stBrowse;
     return false;
@@ -95,7 +107,7 @@ bool MnQry::goTo(int ind) {
         if(!post())
             return false;
     }
-    this->ind = ind;
+    this->row = ind;
     execAfterScroll();
     //update controls
     for (int i = 0; i < dataSources.count(); ++i) {
@@ -131,27 +143,30 @@ void MnQry::removeDataSource(MnCustomDataSource *dts)
 
 QString *MnQry::fieldByName(const QString &name)
 {
+    if (name == "id"){
+        return &data[row][0];
+    }
     int index =this->fieldIndex(name);
     if(index < 0 ) throw MNException(name + "is not a correct field name");
-    return &(data[this->ind][index]);
+    return &(data[this->row][index]);
 }
 
 QString *MnQry::fieldByInd(const int index)
 {
-    return &(data[this->ind][index]);
+    return &(data[this->row][index]);
 }
 
 bool MnQry::next() {
-    if (ind != data.count()-1){
-        goTo(ind+1);
+    if (row != data.count() - 1){
+        goTo(row + 1);
         return true;
     }
     return false;
 }
 
 bool MnQry::prior() {
-    if (ind != 0){
-        goTo(ind-1);
+    if (row != 0){
+        goTo(row - 1);
         return true;
     }
     return false;
@@ -159,7 +174,7 @@ bool MnQry::prior() {
 
 bool MnQry::last() {
     int i =data.count()-1;
-    if (ind != i){
+    if (row != i){
         goTo(i);
         return true;
     }
@@ -167,50 +182,93 @@ bool MnQry::last() {
 }
 
 bool MnQry::first() {
-    if (ind != 0){
+    if (row != 0){
         goTo(0);
         return true;
     }
     return false;
 }
 
-bool MnQry::eof() {
-    return ind == data.count()-1;
-}
 
-bool MnQry::bof() {
-    return ind == 0;
-}
 
 MnQry::MnQry(mnconnection *conn, QString sql, QObject *parent)
 : MnCustomQry(parent),_sql(sql){
-    tableDef = MnTableDef();
+    tableDef = conn->tableDef(_sql.tableName(),_sql.fields());
     this->conn = conn;
 }
 
 QString MnQry::sqlText() {
-    if (tableDef.table_name !=""){
-        return tableDef.selectSql();
-    } else{
-       return _sql.text();
-    }
+     return _sql.text();
 }
 
-long long MnQry::fieldIndex(QString fieldName) {
-    if (tableDef.table_name !=""){
-        return tableDef.fieldIndex(fieldName);
-    } else{
-        return _sql.fields()->indexOf(fieldName);
-    }
+int MnQry::fieldIndex(const QString& fieldName) {
+    return (int)_sql.fields().indexOf(fieldName);
 }
 
-void MnQry::print() {
+void MnQry::printAll() {
     for (const QStringList& row : data) {
         for (const QString& item : row) {
-            qDebug()  << item.toStdString() << "\t";
+            std::cout << item.toStdString() << "\t";
         }
-        qDebug() << "\n";
+        std::cout << "\n";
     }
 }
+
+void MnQry::printTableDef() {
+    tableDef.print();
+
+}
+
+void MnQry::printCurrent() {
+    for (const QString& item : data[row]) {
+        std::cout << item.toStdString() << "\t";
+    }
+    std::cout << "\n";
+}
+
+QList<QVariant> MnQry::toVariants(const QStringList& fields) {
+    QList<QVariant> params = {};
+    for (const QString& fld : fields) {
+        //auto f = tableDef.fieldByName(fld);
+       auto col= tableDef.fieldIndex(fld);
+        auto f = tableDef.fields[row];
+        switch (f.field_type) {
+
+            case INTEGER:
+                params.append(data[row][col].toInt());
+                break;
+            case TEXT:
+            case VARCHAR:
+                params.append(data[row][col]);
+                break;
+            case REAL:
+                params.append(data[row][col].toDouble());
+                break;
+            case BLOB:
+                //TODO:BLOB
+                break;
+            case BOOL:
+                params.append(data[row][col].toInt()!=0 );
+                break;
+            case DATETIME:
+                params.append(data[row][col] );
+                break;
+            default:
+                throw MNException("field type "+QString::number(f.field_type)+" UNHANDLED");
+        }
+    }
+
+    return params;
+}
+
+QStringList MnQry::rowAt(int row) {
+    return data[row];
+}
+
+int MnQry::rowNo() {
+    return row;
+}
+
+
 
 

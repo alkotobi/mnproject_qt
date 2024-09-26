@@ -28,8 +28,8 @@ public:
     virtual bool exec(QString sql, QList<QVariant> &params, QList<QStringList> *dataOut, QStringList *fieldNamesOut) =0;
     virtual int getLastInsertedId(QString idName,QString tableName)=0;
     virtual QString insertSql(const QString &tableName, const QString &fields) =0;
-    virtual QString updateSql(const QString &tableName, const QString &fields) =0;
-    virtual MnTableDef tableDef(const QString &tableName )=0;
+    virtual QString updateSql(const QString &tableName, const QString &fields, const QString &where) =0;
+    virtual MnTableDef tableDef(const QString &tableName, const QStringList &fields) =0;
 
 };
 
