@@ -10,7 +10,7 @@
 #include "mndb_types.h"
 
 typedef enum {stEdit,stInsert,stBrowse} MNQryState;
-class MnQry : public MnCustomQry {
+class MnTable : public MnCustomQry {
 
 typedef bool (*MnNotify)(QObject *);
 private:
@@ -29,8 +29,8 @@ private:
     QList<QVariant> toVariants(const QStringList& fields);
 public:
 
-    MnQry(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
-    MnQry(mnconnection *conn, QString sql, QObject *parent = nullptr);
+    MnTable(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
+    MnTable(mnconnection *conn, QString sql, QObject *parent = nullptr);
     bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
     void close();

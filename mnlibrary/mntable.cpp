@@ -1,11 +1,11 @@
-#include "mnqry.h"
+#include "mntable.h"
 #include "mnexception.h"
 #include <iostream>
 
 
 
 
-bool MnQry::exec(const QString& sql, const QList<QVariant>& params)
+bool MnTable::exec(const QString& sql, const QList<QVariant>& params)
 {
     if(conn != nullptr && sql!=""){
          return conn->exec(sql,params);
@@ -16,7 +16,7 @@ bool MnQry::exec(const QString& sql, const QList<QVariant>& params)
 }
 
 
-MnQry::MnQry(mnconnection *conn, MnTableDef table, QObject *parent)
+MnTable::MnTable(mnconnection *conn, MnTableDef table, QObject *parent)
 :MnCustomQry(parent),_sql(table.selectSql())
 {
     this->conn=conn;
@@ -24,17 +24,17 @@ MnQry::MnQry(mnconnection *conn, MnTableDef table, QObject *parent)
 
 }
 
-void MnQry::close() {
+void MnTable::close() {
     if (!fActive) return;
     data.clear();
     fActive= false;
 }
 
-int MnQry::recordCount() const {
+int MnTable::recordCount() const {
     return fRecordCount;
 }
 
-bool MnQry::open(QList<QVariant> params) {
+bool MnTable::open(QList<QVariant> params) {
     if(fActive){
         throw MNException("can not perform this operation on an open qry");
     }
@@ -64,11 +64,11 @@ bool MnQry::open(QList<QVariant> params) {
    return ret;
 }
 
-void MnQry::edit() {
+void MnTable::edit() {
     fState = stEdit;
 }
 
-bool MnQry::append() {
+bool MnTable::append() {
     if (fState != stBrowse) post();
     fState=stInsert;
     QStringList l;
@@ -83,20 +83,21 @@ bool MnQry::append() {
     return true;
 }
 
-bool MnQry::post() {
+bool MnTable::post() {
+    bool res = false;
     if(data[row][0] == ""){
        //do insert
-        this->conn->insertSql(_sql.tableName(),_sql.insertFields().join(","));
+        res = this->conn->exec(this->conn->insertSql(_sql.tableName(),_sql.insertFields().join(",")));
 
     }else{
        //do update
-      this->conn->exec(this->conn->updateSql(_sql.tableName(),_sql.insertFields().join(","),"id="+data[row][0]), toVariants(_sql.insertFields()));
+      res = this->conn->exec(this->conn->updateSql(_sql.tableName(),_sql.insertFields().join(","),"id="+data[row][0]), toVariants(_sql.insertFields()));
     }
     fState=stBrowse;
-    return false;
+    return res;
 }
 
-bool MnQry::goTo(int ind) {
+bool MnTable::goTo(int ind) {
     if (data.empty()) return false;
     if (!execBeforeScroll()) return false;
     if(ind <0 && ind>= data.count()){
@@ -116,7 +117,7 @@ bool MnQry::goTo(int ind) {
     return true;
 }
 
-bool MnQry::execBeforeScroll() {
+bool MnTable::execBeforeScroll() {
     bool ret= true;
     for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
         ret=ret && beforeScrollNtfs[i](this);
@@ -124,24 +125,24 @@ bool MnQry::execBeforeScroll() {
     return ret;
 }
 
-void MnQry::execAfterScroll() {
+void MnTable::execAfterScroll() {
     for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
         afterScrollNtfs[i](this);
     }
 }
 
-void MnQry::addDataSource(MnCustomDataSource* dts)
+void MnTable::addDataSource(MnCustomDataSource* dts)
 {
     if(dataSources.contains(dts)) return;
     dataSources.append(dts);
 }
 
-void MnQry::removeDataSource(MnCustomDataSource *dts)
+void MnTable::removeDataSource(MnCustomDataSource *dts)
 {
     dataSources.removeOne(dts);
 }
 
-QString *MnQry::fieldByName(const QString &name)
+QString *MnTable::fieldByName(const QString &name)
 {
     if (name == "id"){
         return &data[row][0];
@@ -151,12 +152,12 @@ QString *MnQry::fieldByName(const QString &name)
     return &(data[this->row][index]);
 }
 
-QString *MnQry::fieldByInd(const int index)
+QString *MnTable::fieldByInd(const int index)
 {
     return &(data[this->row][index]);
 }
 
-bool MnQry::next() {
+bool MnTable::next() {
     if (row != data.count() - 1){
         goTo(row + 1);
         return true;
@@ -164,7 +165,7 @@ bool MnQry::next() {
     return false;
 }
 
-bool MnQry::prior() {
+bool MnTable::prior() {
     if (row != 0){
         goTo(row - 1);
         return true;
@@ -172,7 +173,7 @@ bool MnQry::prior() {
     return false;
 }
 
-bool MnQry::last() {
+bool MnTable::last() {
     int i =data.count()-1;
     if (row != i){
         goTo(i);
@@ -181,7 +182,7 @@ bool MnQry::last() {
     return false;
 }
 
-bool MnQry::first() {
+bool MnTable::first() {
     if (row != 0){
         goTo(0);
         return true;
@@ -191,21 +192,21 @@ bool MnQry::first() {
 
 
 
-MnQry::MnQry(mnconnection *conn, QString sql, QObject *parent)
+MnTable::MnTable(mnconnection *conn, QString sql, QObject *parent)
 : MnCustomQry(parent),_sql(sql){
     tableDef = conn->tableDef(_sql.tableName(),_sql.fields());
     this->conn = conn;
 }
 
-QString MnQry::sqlText() {
+QString MnTable::sqlText() {
      return _sql.text();
 }
 
-int MnQry::fieldIndex(const QString& fieldName) {
+int MnTable::fieldIndex(const QString& fieldName) {
     return (int)_sql.fields().indexOf(fieldName);
 }
 
-void MnQry::printAll() {
+void MnTable::printAll() {
     for (const QStringList& row : data) {
         for (const QString& item : row) {
             std::cout << item.toStdString() << "\t";
@@ -214,24 +215,24 @@ void MnQry::printAll() {
     }
 }
 
-void MnQry::printTableDef() {
+void MnTable::printTableDef() {
     tableDef.print();
 
 }
 
-void MnQry::printCurrent() {
+void MnTable::printCurrent() {
     for (const QString& item : data[row]) {
         std::cout << item.toStdString() << "\t";
     }
     std::cout << "\n";
 }
 
-QList<QVariant> MnQry::toVariants(const QStringList& fields) {
+QList<QVariant> MnTable::toVariants(const QStringList& fields) {
     QList<QVariant> params = {};
     for (const QString& fld : fields) {
         //auto f = tableDef.fieldByName(fld);
        auto col= tableDef.fieldIndex(fld);
-        auto f = tableDef.fields[row];
+        auto f = tableDef.fields[col];
         switch (f.field_type) {
 
             case INTEGER:
@@ -261,11 +262,11 @@ QList<QVariant> MnQry::toVariants(const QStringList& fields) {
     return params;
 }
 
-QStringList MnQry::rowAt(int row) {
+QStringList MnTable::rowAt(int row) {
     return data[row];
 }
 
-int MnQry::rowNo() {
+int MnTable::rowNo() {
     return row;
 }
 

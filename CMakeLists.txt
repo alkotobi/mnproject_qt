@@ -27,12 +27,12 @@ set(PROJECT_SOURCES
         mnlibrary/mnarrays.h mnlibrary/mnarrays.c
         mnlibrary/mnstrings.h mnlibrary/mnstrings.cpp
         mnlibrary/mnsql.h mnlibrary/mnsql.cpp
-        mnlibrary/mnqry.h mnlibrary/mnqry.cpp
+        mnlibrary/mntable.h mnlibrary/mntable.cpp
         mnlibrary/mnexception.h mnlibrary/mnexception.cpp
         mnlibrary/mndb_types.h mnlibrary/mndb_types.cpp
         mnlibrary/mndatasource.h         mnlibrary/mndatasource.cpp
         mnlibrary/mncustomdatasource.cpp mnlibrary/mncustomdatasource.h
-        mnlibrary/mnqry.cpp mnlibrary/mnqry.h
+        mnlibrary/mntable.cpp mnlibrary/mntable.h
         mnlibrary/mncustomquery.h mnlibrary/mncustomquery.cpp
         mnlibrary/gui/mncustomdbctrl.h mnlibrary/gui/mncustomdbctrl.cpp
         mnlibrary/gui/mndbedit.h mnlibrary/gui/mndbedit.cpp

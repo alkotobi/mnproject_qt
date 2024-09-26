@@ -334,7 +334,7 @@ QString mnconnection_postgres::updateSql(const QString &tableName, const QString
 {
 
     QStringList l = fields.split(',');
-    QString s= "UPDATE "+tableName+" SET " + l[0]+="$1";
+    QString s= "UPDATE "+tableName+" SET " + l[0]+"=$1";
     for (int i = 1; i < l.count()-1; ++i) {
         s = s + ","+l[i]+"=$"+QString::number(i+1);
     }

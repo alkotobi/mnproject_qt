@@ -39,7 +39,7 @@ target_link_libraries(test_postgres PRIVATE libpq.a)
          ../mnlibrary/mnconnection.cpp
          ../mnlibrary/mnarrays.c
          ../mnlibrary/sqlite3.c
-         ../mnlibrary/mnqry.cpp
+         ../mnlibrary/mntable.cpp
          ../mnlibrary/mndb_types.cpp
          ../mnlibrary/mncustomquery.cpp
          ../mnlibrary/mnsql.cpp

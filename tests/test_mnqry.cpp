@@ -1,13 +1,13 @@
 #include <cstdio>
 #include <iostream>
 #include "mnconnection_postgres.h"
-#include "mnqry.h"
+#include "mntable.h"
 int main(int argc, char *argv[])
 {
     printf("hello world\n");
     mnconnection_postgres conn("test","127.0.01",5432,"postgres","nooo",nullptr);
     conn.connect();
-    MnQry qry(&conn,"SELECT * FROM nour");
+    MnTable qry(&conn, "SELECT * FROM nour");
     qry.open();
     qry.printTableDef();
     std::cout<< "-------------------------\n";
@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
         std::cout << qry.fieldByName("name")->toStdString() << "\t";
         std::cout << "\n";
     } while (qry.next());
+    qry.edit();
+    *qry.fieldByName("name") = "NOUREDDINE";
+    qry.post();
 
     return 0;
 }
