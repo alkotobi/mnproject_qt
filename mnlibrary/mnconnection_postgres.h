@@ -78,6 +78,8 @@ public:
 
     bool execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
                        const QList<QVariant> &params) override;
+
+    bool isConnected() override;
 };
 QString convertSqliteToPostgresRegExp(const QString& sqliteSql);
 QString convertSqliteToPostgres(const QString& sqliteSql);

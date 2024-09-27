@@ -20,7 +20,7 @@ MnCustomQry *MnDataSource::qry()
 void MnDataSource::updateControls()
 {
     for (int i = 0; i < controls.count(); ++i) {
-        QString str = *(this->_qry->fieldByName(controls[i]->fieldName()));
+        QString str = (this->_qry->fieldByName(controls[i]->fieldName()));
         controls[i]->setDbText(str);
     }
 }
@@ -29,7 +29,7 @@ void MnDataSource::updateControls(const QString &fieldName)
 {
     for (int i = 0; i < controls.count(); ++i) {
         if(controls[i]->fieldName()!=fieldName) continue;
-        QString str = *(this->_qry->fieldByName(controls[i]->fieldName()));
+        QString str = (this->_qry->fieldByName(controls[i]->fieldName()));
         controls[i]->setDbText(str);
     }
 }
@@ -37,7 +37,7 @@ void MnDataSource::updateControls(const QString &fieldName)
 void MnDataSource::updateQry(const QString &fieldName,const QString &value)
 {
     //TODO:beforeUpdateField
-    *(this->_qry->fieldByName(fieldName)) = value;
+    this->_qry->setFieldValue(fieldName,value);
 
 
 }

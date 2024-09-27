@@ -13,14 +13,16 @@ mnconnection_sqlite::~mnconnection_sqlite()
 }
 
 bool mnconnection_sqlite::connect() {
+    if (fActive) throw MNException("Cant perform open operation on an active connection");
     QByteArray array = db_name.toLocal8Bit();
     char *buffer = array.data();
-    int rc = sqlite3_open(buffer, &db);
+    int rc = sqlite3_open_v2(buffer, &db,SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX, nullptr);
     if (rc) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         return false;
     } else {
+        fActive = true;
         return true;
     }
 }
@@ -108,7 +110,9 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
 
 bool mnconnection_sqlite::close() {
     int rc = sqlite3_close_v2(db);
+    db = nullptr;
     if (rc == SQLITE_OK) {
+        fActive = false;
         return true;
     } else
         return false;
@@ -132,13 +136,13 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> &params, QList<QStri
         sqlite3_finalize(stmt);
         return false;
     }
-    const char *buffer;
+    //const char *buffer= nullptr;
     for (int i = 0; i < params.count(); ++i) {
         switch (params[i].typeId()) {
             case QMetaType::QString: {
-                std::string ss = params[i].toString().toStdString();
-                buffer = ss.c_str();
-                rc = sqlite3_bind_text(stmt, i + 1, buffer, -1, SQLITE_STATIC);
+                std::string  ss = params[i].toString().toStdString();
+                const char * buffer = ss.c_str();
+                rc = sqlite3_bind_text(stmt, i + 1, buffer, -1, SQLITE_TRANSIENT);
             }
                 break;
             case QMetaType::Int:
@@ -196,7 +200,6 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> &params, QList<QStri
             sqlite3_finalize(stmt);
             throw MNException(QString("Error in executing SELECT query: ") + QString(sqlite3_errmsg(db)));
         }
-        sqlite3_finalize(stmt);
     sqlite3_finalize(stmt);
     return true;
 }
@@ -312,5 +315,9 @@ int mnconnection_sqlite::execInsertSql(const QString &tableName, const QString &
 bool mnconnection_sqlite::execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
                                         const QList<QVariant> &params) {
     return exec(updateSql(tableName,fields,where),params);
+}
+
+bool mnconnection_sqlite::isConnected() {
+    return fActive;
 }
 

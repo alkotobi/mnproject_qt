@@ -40,6 +40,8 @@ private:
 
     bool execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
                        const QList<QVariant> &params) override;
+
+    bool isConnected() override;
 };
 
 #endif // MNCONNECTION_SQLITE_H

@@ -11,6 +11,9 @@ typedef enum{Sqlite,Postgres,Mysql} Db_type;
 class mnconnection : public QObject
 {
         Q_OBJECT
+
+protected:
+    bool fActive =false;
 public:
     explicit mnconnection(QString &db_name,Db_type db_type=Sqlite,QObject *parent=nullptr);
     mnconnection(QString &db_name, Db_type db_type, QString &server, int port, QString &user_name, QString &password , QObject *parent=nullptr);
@@ -31,6 +34,7 @@ public:
     virtual bool execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
                                const QList<QVariant> &params) =0;
     virtual MnTableDef tableDef(const QString &tableName, const QStringList &fields) =0;
+    virtual bool isConnected() = 0;
 
 };
 

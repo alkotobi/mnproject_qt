@@ -37,7 +37,7 @@ set(PROJECT_SOURCES
         mnlibrary/gui/mncustomdbctrl.h mnlibrary/gui/mncustomdbctrl.cpp
         mnlibrary/gui/mndbedit.h mnlibrary/gui/mndbedit.cpp
         test.h
-          ${TS_FILES}
+        ${TS_FILES}
 
 )
 
@@ -70,7 +70,7 @@ endif()
 #
 #
 #    )
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 target_link_libraries(mnproject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(mnproject PRIVATE /Library/PostgreSQL/16/include)
 target_link_libraries(mnproject PRIVATE -L/Library/PostgreSQL/16/lib)

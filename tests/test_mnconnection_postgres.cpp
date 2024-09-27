@@ -1,52 +1,47 @@
-#include "mnconnection_postgres.h"
-
+#include "../mnlibrary/mnconnection_postgres.h"
+#include "../mnlibrary/mnlog.h"
 
 int main(int argc, char *argv[])
 {
     std::printf("hello world postgres\n");
 
-
-    mnconnection_postgres lite("test","127.0.01",5432,"postgres","nooo",nullptr);
-    lite.connect();
-    bool ret = lite.exec(convertSqliteToPostgres("CREATE TABLE IF NOT EXISTS nour("
+    bool ret ;
+    mnconnection_postgres conn("test", "127.0.01", 5432, "postgres", "nooo", nullptr);
+    ret = !conn.isConnected();
+    test(ret,"mnconnection_postgres created");
+    conn.connect();
+    ret = ret && conn.isConnected();
+    test(ret,"mnconnection_postgres connected");
+     ret = ret && conn.exec(convertSqliteToPostgres("CREATE TABLE IF NOT EXISTS nour("
                                                        "\"id\" INTEGER PRIMARY KEY  AUTOINCREMENT,"
                                                        "\"name\" VARCHAR(255) "
-                                                       ");"),{});
-    ret =ret && lite.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"),{"NOUREDDINE"});
-    ret =ret && lite.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"),{"ALI"});
-    ret =ret && lite.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"),{"MOHAMED"});
-    ret =ret && lite.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"),{"MILOUD"});
-    ret =ret && lite.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"),{"KADA"});
+                                                       ");"), {});
+    test(ret,"conn.exec CREATE TABLE ");
+    ret = ret && conn.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"), {"NOUREDDINE"});
+    ret = ret && conn.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"), {"ALI"});
+    ret = ret && conn.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"), {"MOHAMED"});
+    ret = ret && conn.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"), {"MILOUD"});
+    ret = ret && conn.exec(convertSqliteToPostgres("INSERT INTO nour(\"name\") VALUES(?)"), {"KADA"});
+    test(ret,"conn.exec insert data ");
     QList<QStringList> list;
     QStringList fields;
     QList<QVariant> v={};
-    ret =ret && lite.exec(QString("SELECT * FROM nour"),v,&list,&fields);
+    ret = ret && conn.exec(QString("SELECT * FROM nour"), v, &list, &fields);
+    test(ret,"conn.exec SELECT * FROM ");
+    ret = ret && fields.size() ==2;
+    ret = ret && fields[0] =="id";
+    ret = ret && fields[1] =="name";
+    test(ret,"columns retreived ");
+    fields.clear();
+    list.clear();
     v={"NOUREDDINE","ALI"};
-    ret =ret && lite.exec(convertSqliteToPostgresRegExp("SELECT * FROM nour where \"name\"=? OR \"name\"=?" ),v,&list,&fields);
+    ret = ret && conn.exec(convertSqliteToPostgresRegExp("SELECT DISTINCT name FROM nour where \"name\"=? OR \"name\"=?" ), v, &list, &fields);
+    ret = ret && list.size()==2;
+    ret = ret && list[0][0] =="NOUREDDINE" ;
+    ret = ret && list[1][0] =="ALI" ;
+    test(ret,"data retreived ");
     if(ret)
         return 0;
     else
         return 1;
-    //    ("test","127.0.01",5432,"postgres","nooo",nullptr);
-    //    bool ret=lite.connect();
-    //    ret =ret && lite.exec("CREATE TABLE IF NOT EXISTS nour("
-    //                         "\"id\" SERIAL PRIMARY KEY,"
-    //                         "\"name\" VARCHAR(255) "
-    //                         ");",{});
-    //    ret =ret && lite.exec("INSERT INTO nour(\"name\") VALUES($1)",{"NOUREDDINE"});
-    //    ret =ret && lite.exec("INSERT INTO nour(\"name\") VALUES($1)",{"ALI"});
-    //    ret =ret && lite.exec("INSERT INTO nour(\"name\") VALUES($1)",{"MOHAMED"});
-    //    ret =ret && lite.exec("INSERT INTO nour(\"name\") VALUES($1)",{"MILOUD"});
-    //    ret =ret && lite.exec("INSERT INTO nour(\"name\") VALUES($1)",{"KADA"});
-    //    QList<QStringList> list;
-    //    QStringList fields;
-    //    QList<QVariant> v={};
-    //    ret =ret && lite.exec(QString("SELECT * FROM nour"),v,&list,&fields);
-    //    v={"NOUREDDINE"};
-    //    ret =ret && lite.exec(QString("SELECT * FROM nour where \"name\"=$1"),v,&list,&fields);
-    //    if(ret)
-    //        return 0;
-    //    else
-    //        return 1;
-    return 0;
 }

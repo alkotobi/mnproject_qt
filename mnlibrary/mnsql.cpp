@@ -52,7 +52,7 @@ MNSql::MNSql(QString sql) {
     if (!fFields.contains("*") && !fFields.contains("id")){
         fFields.insert(0,"id");
     }
-        fChanged = true;
+    fChanged = true;
 
 }
 
@@ -89,29 +89,29 @@ QStringList MNSql::insertFields() {
 
 QString MNSql::text() {
 
-        if (!isChanged())
-        {
-            return fText;
-        }
-        QString result = "SELECT " + fFields.join(",") + " FROM " + fTableName;
-        if (fWhere!= "")
-            result += " WHERE " + fWhere;
-        if (fOrderBy!= "")
-        {
-            result += "ORDER BY " + fOrderBy;
-        }
-        if (fGroupedBy!= "")
-            result += " GROUP BY " + fGroupedBy;
-        if (fLimit > 0)
-        {
-            result += " limit " + QString::number(fLimit);
-            if (fOffset >= 0)
-                result += " OFFSET " + QString::number(fOffset);
-        }
-        result += ";";
-        fText = result;
-        fChanged = false;
-        return result;
+    if (!isChanged())
+    {
+        return fText;
+    }
+    QString result = "SELECT " + fFields.join(",") + " FROM " + fTableName;
+    if (fWhere!= "")
+        result += " WHERE " + fWhere;
+    if (fOrderBy!= "")
+    {
+        result += "ORDER BY " + fOrderBy;
+    }
+    if (fGroupedBy!= "")
+        result += " GROUP BY " + fGroupedBy;
+    if (fLimit > 0)
+    {
+        result += " limit " + QString::number(fLimit);
+        if (fOffset >= 0)
+            result += " OFFSET " + QString::number(fOffset);
+    }
+    result += ";";
+    fText = result;
+    fChanged = false;
+    return result;
 
 }
 

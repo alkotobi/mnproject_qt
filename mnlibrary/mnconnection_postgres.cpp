@@ -18,12 +18,14 @@ mnconnection_postgres::~mnconnection_postgres()
 }
 
 bool mnconnection_postgres::connect() {
+    if (fActive) throw MNException("Cant perform open operation on an active connection");
     QString str;
     str = "hostaddr=" + server + " port=" + QString::number(port) +
           " dbname=" + db_name + " user=" + user_name + " password=" + password;
     std::string s = str.toStdString();
     db = PQconnectdb(s.c_str());
     if (PQstatus(db) == CONNECTION_OK) {
+        fActive = true;
         return true;
     } else {
         qCritical() << "Can't open database: " << QString(PQerrorMessage(db));
@@ -206,6 +208,7 @@ bool mnconnection_postgres::exec(QString sql, QList<QVariant> params) {
 
 bool mnconnection_postgres::close() {
     PQfinish(db);
+    fActive = false;
     return true;
 }
 
@@ -419,4 +422,8 @@ mnconnection_postgres::execInsertSql(const QString &tableName, const QString &fi
 bool mnconnection_postgres::execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
                                           const QList<QVariant> &params) {
     return exec(updateSql(tableName,fields,where),params);
+}
+
+bool mnconnection_postgres::isConnected() {
+    return fActive;
 }

@@ -17,6 +17,8 @@ add_executable(test_sqlite
         ../mnlibrary/mnconnection_sqlite.cpp
         ../mnlibrary/mnconnection.cpp
         ../mnlibrary/sqlite3.c
+        ../mnlibrary/mnlog.cpp
+
 )
 target_link_libraries(test_sqlite PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(test_sqlite PRIVATE /Library/PostgreSQL/16/include)
@@ -27,26 +29,27 @@ add_executable(test_postgres
         ../mnlibrary/mnconnection_postgres.cpp
         ../mnlibrary/mnconnection.cpp
         ../mnlibrary/mnarrays.c
+        ../mnlibrary/mnlog.cpp
 )
 target_link_libraries(test_postgres PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(test_postgres PRIVATE /Library/PostgreSQL/16/include)
 target_link_libraries(test_postgres PRIVATE -L/Library/PostgreSQL/16/lib)
 target_link_libraries(test_postgres PRIVATE libpq.a)
 
- add_executable(test_mnqry
-         test_mnqry.cpp
-         ../mnlibrary/mnconnection_postgres.cpp
-         ../mnlibrary/mnconnection.cpp
-         ../mnlibrary/mnarrays.c
-         ../mnlibrary/sqlite3.c
-         ../mnlibrary/mntable.cpp
-         ../mnlibrary/mndb_types.cpp
-         ../mnlibrary/mncustomquery.cpp
-         ../mnlibrary/mnsql.cpp
-         ../mnlibrary/mnstrings.cpp
+add_executable(test_mnqry
+        test_mnqry.cpp
+        ../mnlibrary/mnconnection_postgres.cpp
+        ../mnlibrary/mnconnection.cpp
+        ../mnlibrary/mnarrays.c
+        ../mnlibrary/sqlite3.c
+        ../mnlibrary/mntable.cpp
+        ../mnlibrary/mndb_types.cpp
+        ../mnlibrary/mncustomquery.cpp
+        ../mnlibrary/mnsql.cpp
+        ../mnlibrary/mnstrings.cpp
 
- )
- target_link_libraries(test_mnqry PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
- target_include_directories(test_mnqry PRIVATE /Library/PostgreSQL/16/include)
- target_link_libraries(test_mnqry PRIVATE -L/Library/PostgreSQL/16/lib)
- target_link_libraries(test_mnqry PRIVATE libpq.a)
+)
+target_link_libraries(test_mnqry PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(test_mnqry PRIVATE /Library/PostgreSQL/16/include)
+target_link_libraries(test_mnqry PRIVATE -L/Library/PostgreSQL/16/lib)
+target_link_libraries(test_mnqry PRIVATE libpq.a)
