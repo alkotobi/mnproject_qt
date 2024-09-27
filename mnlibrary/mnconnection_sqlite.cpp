@@ -302,3 +302,15 @@ MnTableDef mnconnection_sqlite::tableDef(const QString &tableName, const QString
     return table;
 }
 
+int mnconnection_sqlite::execInsertSql(const QString &tableName, const QString &fields, const QList<QVariant> &params) {
+    if (!exec(insertSql(tableName,fields),params)){
+        return -1;
+    }
+    return getLastInsertedId("id",tableName);
+}
+
+bool mnconnection_sqlite::execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
+                                        const QList<QVariant> &params) {
+    return exec(updateSql(tableName,fields,where),params);
+}
+

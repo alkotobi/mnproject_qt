@@ -13,6 +13,8 @@ public:
     MnCustomQry(QObject *parent= nullptr);
     virtual void addDataSource(MnCustomDataSource *dts)=0;
     virtual void removeDataSource(MnCustomDataSource *dts)=0;
-    virtual QString* fieldByName(const QString& name)=0;
-    virtual QString* fieldByInd(const int index)=0;
+    virtual QString fieldByName(const QString& name)=0;
+    virtual QString fieldByInd(const int index)=0;
+    virtual void setFieldValue(const QString& fieldName, const QString &val)=0;
+    virtual void setFieldValue(int col, const QString &val)=0;
 };

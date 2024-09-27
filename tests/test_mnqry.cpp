@@ -15,13 +15,17 @@ int main(int argc, char *argv[])
     std::cout<< "-------------------------\n";
     qry.first();
     do {
-        std::cout << qry.fieldByName("id")->toStdString() << "\t";
-        std::cout << qry.fieldByName("name")->toStdString() << "\t";
+        std::cout << qry.fieldByName("id").toStdString() << "\t";
+        std::cout << qry.fieldByName("name").toStdString() << "\t";
         std::cout << "\n";
     } while (qry.next());
     qry.edit();
-    *qry.fieldByName("name") = "NOUREDDINE";
+    qry.setFieldValue("name", "NourEddine");
     qry.post();
-
+    std::cout<< "-------------------------\n";
+    qry.append();
+    qry.setFieldValue("name", "SofIa");
+    qry.post();
+    qry.printAll();
     return 0;
 }

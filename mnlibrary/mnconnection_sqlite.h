@@ -13,8 +13,9 @@ extern "C" {
 
 class mnconnection_sqlite : public mnconnection
 {
-public:
-
+private:
+    QString insertSql(const QString &tableName, const QString &fields) ;
+    QString updateSql(const QString &tableName, const QString &fields, const QString &where) ;
 
     // mnconnection interface
 public:
@@ -33,9 +34,12 @@ public:
 private:
   sqlite3 *db=nullptr;
   public:
-  QString insertSql(const QString &tableName, const QString &fields) override;
-  QString updateSql(const QString &tableName, const QString &fields, const QString &where) override;
   MnTableDef tableDef(const QString &tableName, const QStringList &fields) override;
+
+    int execInsertSql(const QString &tableName, const QString &fields, const QList<QVariant> &params) override;
+
+    bool execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
+                       const QList<QVariant> &params) override;
 };
 
 #endif // MNCONNECTION_SQLITE_H

@@ -16,6 +16,8 @@ class mnconnection_postgres : public mnconnection
 {
 private:
     PGconn *db= nullptr;
+    QString insertSql(const QString &tableName, const QString &fields) ;
+    QString updateSql(const QString &tableName, const QString &fields, const QString &where) ;
 public:
     /**
      * @brief Constructor for mnconnection_postgres.
@@ -69,9 +71,13 @@ public:
 
     // mnconnection interface
 public:
-    QString insertSql(const QString &tableName, const QString &fields) override;
-    QString updateSql(const QString &tableName, const QString &fields, const QString &where) override;
+
     MnTableDef tableDef(const QString &tableName, const QStringList &fields) override;
+
+    int execInsertSql(const QString &tableName, const QString &fields, const QList<QVariant> &params) override;
+
+    bool execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
+                       const QList<QVariant> &params) override;
 };
 QString convertSqliteToPostgresRegExp(const QString& sqliteSql);
 QString convertSqliteToPostgres(const QString& sqliteSql);

@@ -400,3 +400,23 @@ MnTableDef mnconnection_postgres::tableDef(const QString &tableName, const QStri
     return table;
 
 }
+
+int
+mnconnection_postgres::execInsertSql(const QString &tableName, const QString &fields, const QList<QVariant> &params) {
+    exec("BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+    if(!exec(insertSql(tableName,fields),params)){
+        exec("ROLLBACK;");
+        return -1;
+        }
+    int lastId = getLastInsertedId("id",tableName);
+    if(!exec("COMMIT")){
+        exec("ROLLBACK;");
+        return -1;
+    }
+    return lastId;
+}
+
+bool mnconnection_postgres::execUpdateSql(const QString &tableName, const QString &fields, const QString &where,
+                                          const QList<QVariant> &params) {
+    return exec(updateSql(tableName,fields,where),params);
+}
