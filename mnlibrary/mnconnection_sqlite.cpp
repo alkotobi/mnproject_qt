@@ -16,7 +16,7 @@ bool mnconnection_sqlite::connect() {
     if (fActive) throw MNException("Cant perform open operation on an active connection");
     QByteArray array = db_name.toLocal8Bit();
     char *buffer = array.data();
-    int rc = sqlite3_open_v2(buffer, &db,SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX, nullptr);
+    int rc = sqlite3_open(buffer, &db);
     if (rc) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
@@ -102,7 +102,6 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
         sqlite3_finalize(stmt);
         return false;
     } else {
-        printf("SQL EXEC completed\n\n");
         sqlite3_finalize(stmt);
         return true;
     }
@@ -228,7 +227,7 @@ int mnconnection_sqlite::getLastInsertedId(QString idName, QString tableName) {
 
 QString mnconnection_sqlite::insertSql(const QString &tableName, const QString &fields)
 {
-    int count = fields.count(',');
+    int count = fields.count(',')+1;
 
     QString par ="?";
 

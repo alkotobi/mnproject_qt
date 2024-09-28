@@ -19,7 +19,7 @@ private:
     QList<QStringList> data={};
     MNSql _sql;
     int row = -1;
-    int fRecordCount=-1;
+    //int fRecordCount=-1;
     bool fActive=false;
     MNQryState fState=stBrowse;
     QStringList fOldVals;
@@ -32,10 +32,11 @@ private:
     QList<MnNotify> afterPostNtfs;
     QList<MnBeforeSetFieldVal> beforeSetFieldValProcs={};
     QList<MnCustomDataSource*> dataSources;
-    MnTableDef tableDef={};
+    MnTableDef fTableDef={};
     QString sqlText();
     QList<QVariant> toVariants(const QStringList& fields);
     bool doBeforeSetFieldVal(MnTable *tbl,const QString &oldVal,QString &newVal);
+    bool goToNoBoundChenck(int ind);
 public:
 
     MnTable(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
@@ -53,6 +54,7 @@ public:
     bool prior();
     bool last();
     bool first();
+    bool priorFirst();
     bool remove();
     bool execBeforeScroll();
     void execAfterScroll();
@@ -72,6 +74,10 @@ public:
     void printTableDef();
     QStringList rowAt(int row);
     int rowNo();
+    bool isOpen() const;
+    MnTableDef tableDef();
+
+
 };
 
 #endif // MNQRY_H

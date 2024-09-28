@@ -81,6 +81,5 @@ public:
 
     bool isConnected() override;
 };
-QString convertSqliteToPostgresRegExp(const QString& sqliteSql);
 QString convertSqliteToPostgres(const QString& sqliteSql);
 
