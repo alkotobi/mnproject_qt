@@ -55,6 +55,10 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
     }
     const char *buffer;
     for (int i = 0; i < params.count(); ++i) {
+        if (params[i].isNull()) {
+            sqlite3_bind_null(stmt, i + 1);
+            continue;
+        }
         switch (params[i].typeId()) {
             case QMetaType::QString: {
                 std::string ss = params[i].toString().toStdString();
@@ -68,6 +72,9 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
 
             case QMetaType::Double:
                 rc = sqlite3_bind_double(stmt, i + 1, params[i].toDouble());
+                break;
+            case QMetaType::Float:
+                rc = sqlite3_bind_double(stmt, i + 1, params[i].toFloat());
                 break;
             case QMetaType::Nullptr:
                 rc = sqlite3_bind_null(stmt, i + 1);
@@ -85,6 +92,7 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
             }
                 break;
             default:
+                qDebug()<<QMetaType(params[i].typeId())<<"\n";
                 throw MNException("TYPE INHANDELED");
                 break;
         }
@@ -232,7 +240,7 @@ QString mnconnection_sqlite::insertSql(const QString &tableName, const QString &
     QString par ="?";
 
     for (int i = 2; i <= count; ++i) {
-        par = par + ",?"+QString::number(i);
+        par = par + ",?";
     }
 
     return "INSERT INTO "+tableName+"("+fields+") VALUES("+par+");";
@@ -269,12 +277,15 @@ MnTableDef mnconnection_sqlite::tableDef(const QString &tableName, const QString
     }
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        if (!fields.isEmpty())
-            if (!fields.contains(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)))))
-                continue;
+//        if (!fields.isEmpty())
+//            if (!fields.contains(QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)))))
+//                continue;
         MnFieldDef field;
         field.field_name = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
         QString typeName = QString(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+        if (typeName.contains("VARCHAR")){
+            typeName = "VARCHAR";
+        }
         if (typeName == "INTEGER") {
             field.field_type = INTEGER;
         } else if (typeName == "TEXT") {
