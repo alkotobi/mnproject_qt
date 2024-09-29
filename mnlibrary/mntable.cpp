@@ -55,6 +55,8 @@ bool MnTable::open(QList<QVariant> params) {
         fActive = true;
         fState = stBrowse;
     } else fActive = false;
+    if (!data.isEmpty())
+        row = 0;
     return ret;
 }
 

@@ -1,6 +1,7 @@
 #include "mndb_types.h"
 #include "mnexception.h"
 #include <iostream>
+#include "mntable.h"
 
 
 QString dbTypesToString(DbTypes type) {
@@ -270,7 +271,97 @@ MnTableDef MnDatabaseDef::table_by_name(const QString& table_name_to_find) {
     throw MNException(table_name_to_find + " not found");
 }
 
+MnDatabaseDef::MnDatabaseDef(const QString &dbName, const QVector<MnTableDef> &tbls, double ver)
+: database_name(dbName), tables(tbls), version(ver)  {
 
-// int main(){
-//     printf("hello world\n");
-// };
+}
+
+QString mapDbTypeToQString(DbTypes type) {
+    switch (type) {
+        case INTEGER:
+            return "INTEGER";
+        case TEXT:
+            return "TEXT";
+        case REAL:
+            return "REAL";
+        case VARCHAR:
+            return "VARCHAR";
+        case BLOB:
+            return "BLOB";
+        case BOOL:
+            return "BOOL";
+        case DATETIME:
+            return "DATETIME";
+        default:
+            return "UNKNOWN_TYPE";
+    }
+}
+
+
+DbTypes mapQStringToDbType(const QString& str) {
+    if (str == "INTEGER") {
+        return INTEGER;
+    } else if (str == "TEXT") {
+        return TEXT;
+    } else if (str == "REAL") {
+        return REAL;
+    } else if (str == "VARCHAR") {
+        return VARCHAR;
+    } else if (str == "BLOB") {
+        return BLOB;
+    } else if (str == "BOOL") {
+        return BOOL;
+    } else if (str == "DATETIME") {
+        return DATETIME;
+    } else {
+        std::cerr << "Unknown database type string: " << str.toStdString() << std::endl;
+        return INTEGER; // Default to INTEGER in case of unknown input.
+    }
+}
+
+MnFieldDef MnFieldDef::init_from_db(MnTable* table) {
+    MnFieldDef result;
+    result.field_name = table->fieldByName("field_name");
+    // Assuming there's a way to convert string to appropriate DbTypes enum value.
+    // For simplicity, assuming field_type is a string for now.
+    result.field_type = mapQStringToDbType(table->fieldByName("field_type"));
+    result.field_length = table->fieldByName("field_length").toInt();
+    result.is_unique = table->fieldByName("is_unique").toInt()!= 0;
+    result.is_not_null = table->fieldByName("is_not_null").toInt()!= 0;
+    result.is_indexed = table->fieldByName("is_indexed").toInt()!= 0;
+    result.default_value = table->fieldByName("default_value");
+    result.description = table->fieldByName("description");
+    result.is_required = table->fieldByName("is_required").toInt()!= 0;
+    result.is_visible = table->fieldByName("is_visible").toInt()!= 0;
+    result.is_read_only = table->fieldByName("is_read_only").toInt()!= 0;
+    result.display_width = table->fieldByName("display_width").toInt();
+    result.display_label = table->fieldByName("display_label");
+    result.is_calculated = table->fieldByName("is_calculated").toInt()!= 0;
+    result.ind = table->fieldByName("ind").toInt();
+    return result;
+}
+
+
+MnTableDef MnTableDef::init_from_db(MnTable *tbl_tables, MnTable *tbl_fields) {
+    MnTableDef result;
+    if (tbl_fields->recordCount() == 0) {
+        throw MNException("empty fields");
+    }
+    if (tbl_tables->recordCount() == 0) {
+        throw MNException("empty tables");
+    }
+    result.table_name = tbl_tables->fieldByName("table_name");
+    result.default_data = tbl_tables->fieldByName("default_data");
+    result.description = tbl_tables->fieldByName("description");
+    result.is_view = tbl_tables->fieldByName("is_view").toInt()!= 0;
+    result.create_sql = tbl_tables->fieldByName("create_sql");
+
+    tbl_fields->priorFirst();
+    while (tbl_fields->next()) {
+        MnFieldDef fld;
+        fld.init_from_db(tbl_fields);
+        result.fields.push_back(fld);
+    }
+    result.insert_params_count = result.fields.size();
+    return result;
+}

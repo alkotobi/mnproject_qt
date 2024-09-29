@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(mnproject VERSION 0.1 LANGUAGES C CXX)
+project(dbTools VERSION 0.1 LANGUAGES C CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -13,14 +13,14 @@ set(CMAKE_PREFIX_PATH "/Users/mac/Qt/6.7.2/macos/lib/cmake/")
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
-set(TS_FILES mnproject_ar_DZ.ts)
+
 
 set(PROJECT_SOURCES
-        main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        mnlibrary/mnconnection.h mnlibrary/mnconnection.cpp
+        db_option_design.h
+        ./mnlibrary/mnconnection.h mnlibrary/mnconnection.cpp
         mnlibrary/sqlite3.h mnlibrary/sqlite3.c
         mnlibrary/mnconnection_sqlite.h mnlibrary/mnconnection_sqlite.cpp
         mnlibrary/mnconnection_postgres.h mnlibrary/mnconnection_postgres.cpp
@@ -37,49 +37,48 @@ set(PROJECT_SOURCES
         mnlibrary/gui/mncustomdbctrl.h mnlibrary/gui/mncustomdbctrl.cpp
         mnlibrary/gui/mndbedit.h mnlibrary/gui/mndbedit.cpp
         test.h
-        ${TS_FILES}
+
 
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(mnproject
+    qt_add_executable(dbTools
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
+            main.cpp
+
     )
 
 else()
     if(ANDROID)
-        add_library(mnproject SHARED
+        add_library(dbTools SHARED
                 ${PROJECT_SOURCES}
+                ${TS_FILES}
         )
         # Define properties for Android with Qt 5 after find_package() calls as:
         #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(mnproject
+        add_executable(dbTools
                 ${PROJECT_SOURCES}
+                main.cpp
         )
     endif()
 endif()
 
-#
-#qt_add_executable(mnproject
-#        MANUAL_FINALIZATION
-#        ${PROJECT_SOURCES}
-#
-#
-#
-#
-#    )
+
 qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-target_link_libraries(mnproject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_include_directories(mnproject PRIVATE /Library/PostgreSQL/16/include)
-target_link_libraries(mnproject PRIVATE -L/Library/PostgreSQL/16/lib)
-target_link_libraries(mnproject PRIVATE libpq.a)
+target_link_libraries(dbTools PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(dbTools PRIVATE /Library/PostgreSQL/16/include)
+target_link_libraries(dbTools PRIVATE -L/Library/PostgreSQL/16/lib)
+target_link_libraries(dbTools PRIVATE libpq.a)
+
+
+
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.merhab.mnproject)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.merhab.dbTools)
 endif()
-set_target_properties(mnproject PROPERTIES
+set_target_properties(dbTools PROPERTIES
         ${BUNDLE_ID_OPTION}
         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -88,15 +87,15 @@ set_target_properties(mnproject PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS mnproject
+install(TARGETS dbTools
         BUNDLE DESTINATION .
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(mnproject)
+    qt_finalize_executable(dbTools)
 endif()
 
-add_subdirectory(tests)
+
 

@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+class MnTable;
+
 typedef enum{INTEGER,TEXT,REAL,VARCHAR,BLOB,BOOL,DATETIME} DbTypes;
 
 struct MnFieldDef {
@@ -27,9 +29,10 @@ public:
     bool is_calculated= false;
     int ind=-1;
     QString to_json() const;
+    MnFieldDef init_from_db(MnTable *table);
 };
 
-class MnTableDef {
+struct MnTableDef {
 public:
     QString table_name;
     MnTableDef mntable_from_json(const QString& json_str);
@@ -49,6 +52,7 @@ public:
     QString inserSql();
     QString updateSql();
     void print();
+    MnTableDef init_from_db(MnTable *tbl_tables, MnTable *tbl_fields);
 };
 
 const struct MnFieldDef mnfieldId = {
@@ -78,6 +82,7 @@ public:
     QString db_path;
     MnDatabaseDef();
     explicit MnDatabaseDef(const QString& json_str);
+    MnDatabaseDef(const QString& dbName, const QVector<MnTableDef>& tbls, double ver);
     [[nodiscard]] QString to_json() const;
     MnTableDef table_by_name(const QString& table_name_to_find);
 };

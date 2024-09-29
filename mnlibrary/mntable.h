@@ -1,7 +1,7 @@
 #ifndef MNQRY_H
 #define MNQRY_H
 
-#include "mnconnection.h"
+#include "./mnconnection.h"
 #include <QObject>
 #include <QVariant>
 #include "mnsql.h"

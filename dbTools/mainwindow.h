@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "mndb_types.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,18 +17,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
-public slots:
-   static void edited();
-       static void edited2();
+    MnTableDef groupDef;
 private slots:
     void on_pushButton_clicked();
-
-    void on_pushButton_2_clicked();
-
-    void on_assign_function_to_signal_clicked();
-
-    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
