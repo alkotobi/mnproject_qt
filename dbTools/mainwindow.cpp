@@ -5,16 +5,21 @@
 #include "mnfiles.h"
 #include "mndb_types.h"
 #include "db_design.h"
+#include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     this->groupDef =group_def ;
+    ui->edtDbPath->setText(stringFromFile("./dbPath.txt"));
+    ui->edtDotH->setText(stringFromFile("./dotHPath.txt"));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
+
 
 QString fromStrIntToStrBool(QString strInt) {
     if (strInt.toInt() == 0) {
@@ -29,10 +34,19 @@ QString emptyStrTo0str(QString str){
 }
 
 void MainWindow::on_pushButton_clicked() {
+    if(ui->edtDbPath->text().isEmpty()){
+        on_btn_open_db_file_clicked();
+        if(ui->edtDbPath->text().isEmpty()){
+            QMessageBox::critical(nullptr, "Error", "No file selected.");
+            return;
+        }
+    }
+
     QString output = "#pragma once\n";
     output += "#include <QString>\n";
     output += "#include <mndb_types.h>\n";
-    mnconnection_sqlite conn("/Users/mac/dev/qt/mnproject/dbTools/db_design.db");
+
+    mnconnection_sqlite conn(ui->edtDbPath->text());
     if (!conn.connect()) {
         qDebug() << conn.errorMessage() + "\n";
     }
@@ -89,8 +103,55 @@ void MainWindow::on_pushButton_clicked() {
         output +=t;
 
     }
+    if(ui->edtDotH->text().isEmpty()){
 
-    stringToFile(output, pathFromFilePath(conn.db_name)+ "db_design.h");
+        ui->edtDotH->setText(pathFromFilePath(conn.db_name)+ "db_design.h");
+        stringToFile(ui->edtDotH->text(),"./dotHPath.txt");
+    }
+    stringToFile(output, ui->edtDotH->text());
+}
 
+
+
+
+
+void MainWindow::on_btn_open_db_file_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(nullptr, "Select Database File", "", "Database Files (*.db)");
+    if (filePath.isEmpty()) {
+        QMessageBox::critical(nullptr, "Error", "No file selected.");
+    } else {
+        ui->edtDbPath->setText(filePath);
+        stringToFile(filePath,"./dbPath.txt");
+    }
+}
+
+
+void MainWindow::on_btn_save_dot_h_clicked()
+{
+    QString filePath = QFileDialog::getSaveFileName(nullptr, "Save.h File", "", "Header Files (*.h)");
+    if (!filePath.isEmpty()) {
+        QFile file(filePath);
+        if (file.exists()) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Confirm Overwrite");
+            msgBox.setText("The file already exists. Do you want to overwrite it?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setIcon(QMessageBox::Question);
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Yes) {
+                ui->edtDotH->setText(filePath);
+            } else {
+                QMessageBox::critical(nullptr, "Error", "No file selected.");
+                return;
+            }
+        } else {
+            ui->edtDotH->setText(filePath);
+        }
+    } else {
+        QMessageBox::critical(nullptr, "Error", "No file selected.");
+        return;
+    }
+    stringToFile(filePath,"./dotHPath.txt");
 }
 

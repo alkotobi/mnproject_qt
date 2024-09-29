@@ -7,3 +7,4 @@
 #include <QString>
 void stringToFile(const QString& content, const QString& filePath);
 QString pathFromFilePath(QString filePath);
+QString stringFromFile(const QString &filePath);

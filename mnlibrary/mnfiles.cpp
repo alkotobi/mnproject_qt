@@ -27,3 +27,15 @@ QString pathFromFilePath(QString filePath) {
     QString pathOnly = fileInfo.path() +QDir::separator();
     return pathOnly;
 }
+
+
+
+QString stringFromFile(const QString &filePath) {
+    QFile file(filePath);
+    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        return in.readAll();
+    } else {
+        return QString();
+    }
+}

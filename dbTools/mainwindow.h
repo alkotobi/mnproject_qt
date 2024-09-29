@@ -21,6 +21,11 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+
+    void on_btn_open_db_file_clicked();
+
+    void on_btn_save_dot_h_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
