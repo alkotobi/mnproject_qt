@@ -19,7 +19,6 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        db_design.h
         ../mnlibrary/mnconnection_sqlite.cpp
         ../mnlibrary/mnconnection.cpp
         ../mnlibrary/mntable.cpp

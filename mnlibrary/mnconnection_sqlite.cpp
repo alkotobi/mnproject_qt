@@ -3,7 +3,7 @@
 #include "mnexception.h"
 
 mnconnection_sqlite::mnconnection_sqlite(QString db_name, QObject *parent)
-        : mnconnection(db_name, Sqlite, parent) {
+        : mnconnection(db_name, Sqlite) {
     db = nullptr;
 }
 
@@ -257,6 +257,13 @@ QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &
         s = s + " WHERE "+where;
     }
     return s;
+}
+
+mnconnection_sqlite::mnconnection_sqlite()
+{
+    db=nullptr;
+    db_name = "";
+    db_type=Db_type::Sqlite;
 }
 
 

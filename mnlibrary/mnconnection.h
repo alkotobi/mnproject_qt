@@ -1,6 +1,4 @@
 #pragma once
-
-#include <QObject>
 #include <QString>
 #include "mndb_types.h"
 
@@ -8,15 +6,16 @@
 
 typedef enum{Sqlite,Postgres,Mysql} Db_type;
 
-class mnconnection : public QObject
+class mnconnection:public QObject
 {
-        Q_OBJECT
+    Q_OBJECT
 
 protected:
     bool fActive =false;
 public:
-    explicit mnconnection(QString &db_name,Db_type db_type=Sqlite,QObject *parent=nullptr);
-    mnconnection(QString &db_name, Db_type db_type, QString &server, int port, QString &user_name, QString &password , QObject *parent=nullptr);
+    mnconnection();
+    explicit mnconnection(QString &db_name,Db_type db_type=Sqlite);
+    mnconnection(QString &db_name, Db_type db_type, QString &server, int port, QString &user_name, QString &password);
     QString db_name;
     QString server;
     int port{};

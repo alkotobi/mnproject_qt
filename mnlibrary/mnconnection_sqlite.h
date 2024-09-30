@@ -19,6 +19,7 @@ private:
 
     // mnconnection interface
 public:
+    mnconnection_sqlite();
     explicit mnconnection_sqlite(QString db_name,QObject *parent=nullptr) ;
     ~mnconnection_sqlite();
     bool connect() override;

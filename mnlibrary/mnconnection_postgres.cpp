@@ -21,7 +21,7 @@ int id_names = 0;
 
 mnconnection_postgres::mnconnection_postgres(QString db_name, QString server, int port, QString user_name,
                                              QString password, QObject *parent)
-        : mnconnection(db_name, Postgres, server, port, user_name, password, parent) {
+        : mnconnection(db_name, Postgres, server, port, user_name, password) {
     db = nullptr;
 }
 

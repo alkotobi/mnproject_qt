@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "db_option_design.h"
 
 extern "C" {
 #include <libpq-fe.h>
@@ -164,8 +163,8 @@ void MainWindow::on_assign_function_to_signal_clicked()
 
 void MainWindow::on_pushButton_3_clicked()
 {
-     db_options_design_def =MnDatabaseDef(db_options_design_json);
-    MnTableDef tbl = db_options_design_def.table_by_name(databases_table_name);
-    QString tblName = tbl.table_name;
+//     db_options_design_def =MnDatabaseDef(db_options_design_json);
+//    MnTableDef tbl = db_options_design_def.table_by_name(databases_table_name);
+//    QString tblName = tbl.table_name;
 }
 

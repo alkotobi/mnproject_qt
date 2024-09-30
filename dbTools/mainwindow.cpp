@@ -4,14 +4,12 @@
 #include "mnconnection_sqlite.h"
 #include "mnfiles.h"
 #include "mndb_types.h"
-#include "db_design.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    this->groupDef =group_def ;
     ui->edtDbPath->setText(stringFromFile("./dbPath.txt"));
     ui->edtDotH->setText(stringFromFile("./dotHPath.txt"));
 }
@@ -44,7 +42,7 @@ void MainWindow::on_pushButton_clicked() {
 
     QString output = "#pragma once\n";
     output += "#include <QString>\n";
-    output += "#include <mndb_types.h>\n";
+    output += "#include \"mnlibrary/mndb_types.h\"\n";
 
     mnconnection_sqlite conn(ui->edtDbPath->text());
     if (!conn.connect()) {
@@ -60,7 +58,7 @@ void MainWindow::on_pushButton_clicked() {
         output = output + "//--------------------------------" + tbls.fieldByName("table_name") +
                  "--------------------------\n";
         output = output + "//-------------------------------------------------------------------\n";
-        output = output + "QString " + tbls.fieldByName("table_name") + "_table_name=\"" +
+        output = output + "static QString " + tbls.fieldByName("table_name") + "_table_name=\"" +
                  tbls.fieldByName("table_name") + "\";\n";
         MnTable fields(&conn, "select * from fields where id_table = " + tbls.fieldByName("id"));
         if (!fields.open()) {
@@ -69,9 +67,9 @@ void MainWindow::on_pushButton_clicked() {
         QString fld_defs ="";
         fields.priorFirst();
         while (fields.next()) {
-            output = output + "QString " + tbls.fieldByName("table_name") + "_" +
+            output = output + "static QString " + tbls.fieldByName("table_name") + "_" +
                      fields.fieldByName("field_name") + "=\"" + fields.fieldByName("field_name") + "\";\n";
-            QString f = QString("const struct MnFieldDef ")+tbls.fieldByName("table_name") +"_"+fields.fieldByName("field_name") + "_def = {"+"\n" +
+            QString f = QString("static const struct MnFieldDef ")+tbls.fieldByName("table_name") +"_"+fields.fieldByName("field_name") + "_def = {"+"\n" +
                         ".field_name = \"" + fields.fieldByName("field_name") + "\",\n" +
                         ".field_type = " + fields.fieldByName("field_type") + ",\n" +
                         ".field_length = " + emptyStrTo0str(fields.fieldByName("field_length")) + ",\n" +
@@ -91,7 +89,7 @@ void MainWindow::on_pushButton_clicked() {
             fld_defs +=tbls.fieldByName("table_name") +"_"+fields.fieldByName("field_name") + "_def,";
             output +=f;
         }
-        QString t = "const MnTableDef "+tbls.fieldByName("table_name")+"_def ={\n"
+        QString t = "static const MnTableDef "+tbls.fieldByName("table_name")+"_def ={\n"
                     "        .table_name = \""+tbls.fieldByName("table_name")+"\",\n"
                     "        .fields={"+fld_defs+"},\n"
                     "        .default_data = \""+tbls.fieldByName("default_data")+"\",\n"
