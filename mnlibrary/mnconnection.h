@@ -34,6 +34,9 @@ public:
                                const QList<QVariant> &params) =0;
     virtual MnTableDef tableDef(const QString &tableName, const QStringList &fields) =0;
     virtual bool isConnected() = 0;
+    virtual bool execCreateTableSql(const MnTableDef &table)=0;
+    virtual bool execUpdateTableSql(const MnTableDef &table) = 0;
+    virtual bool tableBackup(const QString &originalTableName, const QString newTableName) = 0;
 
 };
 

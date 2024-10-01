@@ -21,12 +21,12 @@ MnTable::MnTable(mnconnection *conn, MnTableDef table, QObject *parent)
 
 void MnTable::close() {
     if (!fActive) return;
-    data.clear();
+    data()->clear();
     fActive = false;
 }
 
-int MnTable::recordCount() const {
-    return data.size();
+int MnTable::recordCount() {
+    return data()->size();
 }
 
 bool MnTable::open(QList<QVariant> params) {
@@ -41,7 +41,7 @@ bool MnTable::open(QList<QVariant> params) {
     } else {
         fldPtr = nullptr;
     }
-    bool ret = this->conn->exec(s, params, &data, fldPtr);
+    bool ret = this->conn->exec(s, params, data(), fldPtr);
     if (fldPtr) {
         if (!fld.contains("id")) {
             fld.insert(0, "id");
@@ -50,19 +50,19 @@ bool MnTable::open(QList<QVariant> params) {
         _sql.fieldAppend(fld);
         _sql.insertFieldsClear();
     }
-//    fRecordCount = (int) data.count();
+//    fRecordCount = (int) data()->count();
     if (ret) {
         fActive = true;
         fState = stBrowse;
     } else fActive = false;
-    if (!data.isEmpty())
+    if (!data()->isEmpty())
         row = 0;
     return ret;
 }
 
 void MnTable::edit() {
-    if (data.isEmpty()) throw MNException("cant edit an empty dataset");
-    fOldVals = data[row];
+    if (data()->isEmpty()) throw MNException("cant edit an empty dataset");
+    fOldVals = (*data())[row];
     fState = stEdit;
 }
 
@@ -75,8 +75,8 @@ bool MnTable::append() {
     for (int i = 0; i < _sql.fields().count(); i++) {
         l.append("");
     }
-    data.append(l);
-    row = (int) data.count() - 1;
+    data()->append(l);
+    row = (int) data()->count() - 1;
     execAfterScroll();
     return true;
 }
@@ -86,7 +86,7 @@ bool MnTable::post() {
         return false;
     bool res = false;
     if (!fNotEdited) {
-        if (data[row][0] == "") {
+        if ((*data())[row][0] == "") {
             //do insert
             int id = this->conn->execInsertSql(_sql.tableName(), _sql.insertFields().join(","),
                                                toVariants(_sql.insertFields()));
@@ -96,7 +96,7 @@ bool MnTable::post() {
         } else {
             //do update
             res = this->conn->execUpdateSql(
-                    _sql.tableName(), _sql.insertFields().join(","), "id=" + data[row][0],
+                    _sql.tableName(), _sql.insertFields().join(","), "id=" + (*data())[row][0],
                     toVariants(_sql.insertFields()));
         }
         fNotEdited = true;
@@ -109,7 +109,7 @@ bool MnTable::post() {
 }
 
 bool MnTable::goToNoBoundChenck(int ind) {
-    if (data.empty()) return false;
+    if (data()->empty()) return false;
     if (!execBeforeScroll()) return false;
     if (fState != stBrowse) {
         if (fState == stInsert && fNotEdited) {
@@ -127,7 +127,7 @@ bool MnTable::goToNoBoundChenck(int ind) {
 }
 
 bool MnTable::goTo(int ind) {
-    if (ind < 0 && ind >= data.count()) {
+    if (ind < 0 && ind >= data()->count()) {
         throw MNException("index out of range\n");
     }
     return goToNoBoundChenck(ind);
@@ -158,15 +158,15 @@ void MnTable::removeDataSource(MnCustomDataSource *dts) {
 
 QString MnTable::fieldByName(const QString &name) {
     if (name == "id") {
-        return data[row][0];
+        return (*data())[row][0];
     }
     int index = this->fieldIndex(name);
     if (index < 0) throw MNException(name + "is not a correct field name");
-    return (data[this->row][index]);
+    return ((*data())[this->row][index]);
 }
 
 QString MnTable::fieldByInd(const int index) {
-    return (data[this->row][index]);
+    return ((*data())[this->row][index]);
 }
 
 void MnTable::setFieldValue(const QString &fieldName, const QString &val) {
@@ -178,25 +178,25 @@ void MnTable::setFieldValue(const QString &fieldName, const QString &val) {
 void MnTable::setFieldValue(int col, const QString &val) {
     if (fState == stBrowse) throw MNException("Dataset not in edit or insert mode");
     if (col < 0 || col > _sql.fields().size()) throw MNException(QString::number(col) + "is not a correct field col");
-    if (data[this->row][col] == val) return;
+    if ((*data())[this->row][col] == val) return;
     QString s = val;
-    if (!doBeforeSetFieldVal(this, data[this->row][col], s)) {
+    if (!doBeforeSetFieldVal(this, (*data())[this->row][col], s)) {
         return;
     }
-    data[this->row][col] = s;
+    (*data())[this->row][col] = s;
     fNotEdited = false;
 }
 
 bool MnTable::next() {
-    if (data.isEmpty()) return false;
-    if (row != data.count() - 1) {
+    if (data()->isEmpty()) return false;
+    if (row != data()->count() - 1) {
         return goTo(row + 1);
     }
     return false;
 }
 
 bool MnTable::prior() {
-    if (data.isEmpty()) return false;
+    if (data()->isEmpty()) return false;
     if (row != 0) {
         return goTo(row - 1);
     }
@@ -204,8 +204,8 @@ bool MnTable::prior() {
 }
 
 bool MnTable::last() {
-    if (data.isEmpty()) return false;
-    int i = (int) data.count() - 1;
+    if (data()->isEmpty()) return false;
+    int i = (int) data()->count() - 1;
     if (row != i) {
         return goTo(i);
     }
@@ -213,7 +213,7 @@ bool MnTable::last() {
 }
 
 bool MnTable::first() {
-    if (data.isEmpty()) return false;
+    if (data()->isEmpty()) return false;
     if (row != 0) {
         return goTo(0);
     }
@@ -236,7 +236,7 @@ int MnTable::fieldIndex(const QString &fieldName) {
 }
 
 void MnTable::printAll() {
-    for (const QStringList &row: data) {
+    for (const QStringList &row: (*data())) {
         for (const QString &item: row) {
             std::cout << item.toStdString() << "\t";
         }
@@ -250,7 +250,7 @@ void MnTable::printTableDef() {
 }
 
 void MnTable::printCurrent() {
-    for (const QString &item: data[row]) {
+    for (const QString &item: (*data())[row]) {
         std::cout << item.toStdString() << "\t";
     }
     std::cout << "\n";
@@ -265,35 +265,35 @@ QList<QVariant> MnTable::toVariants(const QStringList &fields) {
         switch (f.field_type) {
 
             case INTEGER:
-                if (data[row][col] == "") {
+                if ((*data())[row][col] == "") {
                     params.append(QVariant());
                 } else
-                    params.append(data[row][col].toInt());
+                    params.append((*data())[row][col].toInt());
                 break;
             case TEXT:
             case VARCHAR:
-                params.append(data[row][col]);
+                params.append((*data())[row][col]);
                 break;
             case REAL:
-                if (data[row][col] == "") {
+                if ((*data())[row][col] == "") {
                     params.append(QVariant());
                 } else
-                    params.append(data[row][col].toFloat());
+                    params.append((*data())[row][col].toFloat());
                 break;
             case BLOB:
                 //TODO:BLOB
                 break;
             case BOOL:
-                if (data[row][col] == "") {
+                if ((*data())[row][col] == "") {
                     params.append(false);
                 } else
-                    params.append(data[row][col].toInt() != 0);
+                    params.append((*data())[row][col].toInt() != 0);
                 break;
             case DATETIME:
-                if (data[row][col] == "") {
+                if ((*data())[row][col] == "") {
                     params.append(QVariant());
                 } else
-                    params.append(data[row][col]);
+                    params.append((*data())[row][col]);
                 break;
             default:
                 throw MNException("field type " + QString::number(f.field_type) + " UNHANDLED");
@@ -304,7 +304,7 @@ QList<QVariant> MnTable::toVariants(const QStringList &fields) {
 }
 
 QStringList MnTable::rowAt(int row) {
-    return data[row];
+    return (*data())[row];
 }
 
 int MnTable::rowNo() {
@@ -322,15 +322,15 @@ bool MnTable::doBeforeSetFieldVal(MnTable *tbl, const QString &oldVal, QString &
 bool MnTable::cancel() {
     if (fState == stBrowse) throw MNException("can not cancel when in browse state");
     if (fState == stInsert) {
-        data.removeLast();
+        data()->removeLast();
         if (!execBeforeScroll()) {
             return false;
         }
-        row = (int) data.count() - 1;
+        row = (int) data()->count() - 1;
         execAfterScroll();
     } else if (fState == stEdit) {
         if (!fNotEdited) {
-            data[row] = fOldVals;
+            (*data())[row] = fOldVals;
         }
     }
     fOldVals.clear();
@@ -343,11 +343,11 @@ bool MnTable::remove() {
     if (!execBeforeRemove())
         return false;
     bool ret = true;
-    if (data[row][0] != "") {
-        ret = conn->exec("DELETE FROM " + _sql.tableName() + " WHERE id=" + data[row][0]);//TODO:possible sql injection
+    if ((*data())[row][0] != "") {
+        ret = conn->exec("DELETE FROM " + _sql.tableName() + " WHERE id=" + (*data())[row][0]);//TODO:possible sql injection
     }
     if (ret) {
-        data.removeAt(row);
+        data()->removeAt(row);
         execBeforeScroll();
         if (row > 0)
             row--;
@@ -399,6 +399,14 @@ bool MnTable::priorFirst() {
     }
     row = -1;
     return true;
+}
+
+QList<QStringList> *MnTable::data() {
+    return &_data;
+}
+
+void MnTable::setFiltered(bool f) {
+    _filtered = f;
 }
 
 

@@ -4,6 +4,11 @@
 //
 
 #include "mnstrings.h"
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
+#include <QCoreApplication>
+#include <QDir>
 
 
 QString removeExtraSpacesForSqlText(QString& sql_text)
@@ -32,4 +37,29 @@ QString removeExtraSpacesForSqlText(QString& sql_text)
         count++;
     }
     return result;
+}
+
+
+
+
+bool logQListOfStringsToFile(const QList<QStringList> &data, const QString &name) {
+    QString appPath = QCoreApplication::applicationDirPath();
+    QDateTime currentTime = QDateTime::currentDateTime();
+    QString timestamp = currentTime.toString("yyyyMMdd_hhmmss");
+
+    QString fileName = appPath + QDir::separator() + name + "_" + timestamp + ".txt";
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        for (const QStringList &row: data) {
+            for (const QString &item: row) {
+                out << item << "\t"; // Use tab as a separator between items in a row. You can change this.
+            }
+            out << "\n";
+        }
+        file.close();
+        return true;
+    } else {
+        return false;
+    }
 }

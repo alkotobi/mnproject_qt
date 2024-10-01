@@ -16,7 +16,8 @@ typedef bool (*MnNotify)(QObject *);
 typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QString &newVal);
 private:
     mnconnection *conn=nullptr;
-    QList<QStringList> data={};
+    QList<QStringList> _data={};
+    QList<QStringList> _dataFiltered={};
     MNSql _sql;
     int row = -1;
     //int fRecordCount=-1;
@@ -37,6 +38,8 @@ private:
     QList<QVariant> toVariants(const QStringList& fields);
     bool doBeforeSetFieldVal(MnTable *tbl,const QString &oldVal,QString &newVal);
     bool goToNoBoundChenck(int ind);
+    QList<QStringList> *data();
+    bool _filtered = false;
 public:
 
     MnTable(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
@@ -44,7 +47,7 @@ public:
     bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
     void close();
-    [[nodiscard]] int recordCount() const;
+    [[nodiscard]] int recordCount();
     void edit();
     bool append();
     bool post();
@@ -76,6 +79,7 @@ public:
     int rowNo();
     bool isOpen() const;
     MnTableDef tableDef();
+    void setFiltered(bool f);
 
 
 };

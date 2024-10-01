@@ -80,6 +80,12 @@ public:
                        const QList<QVariant> &params) override;
 
     bool isConnected() override;
+
+    bool execCreateTableSql(const MnTableDef &table) override;
+
+    bool tableBackup(const QString &originalTableName, const QString newTableName) override;
+
+    bool execUpdateTableSql(const MnTableDef &table) override;
 };
 QString convertSqliteToPostgres(const QString& sqliteSql);
 

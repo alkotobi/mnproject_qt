@@ -7,3 +7,4 @@
 #include <QString>
 
 QString removeExtraSpacesForSqlText( QString& sql_text);
+bool  logQListOfStringsToFile(const QList<QStringList>& data, const QString& name);

@@ -9,7 +9,10 @@ class Dtm:public QObject
     Q_OBJECT
 private:
     mnconnection_sqlite *_connOptions= nullptr;
+    MnTable *_tblDatabases = nullptr;
+    mnconnection *_connMain = nullptr;
     MnTable *_tblGroup= nullptr;
+    MnTable *_tblUser= nullptr;
 
 
 public:
@@ -17,6 +20,10 @@ public:
     ~Dtm();
     mnconnection *connOptions();
     MnTable *tblGroup();
+    MnTable *tblUser();
+    MnTable *tblDatabases();
+
+    mnconnection *connMain();
 };
 
 #endif // DTM_H

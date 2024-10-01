@@ -73,17 +73,15 @@ const struct MnFieldDef mnfieldId = {
         .ind = 0
 };
 
-class MnDatabaseDef {
+struct MnDatabaseDef {
 public:
     QString database_name;
+    QString db_path;
     QVector<MnTableDef> tables;
     double version;
     QString description;
-    QString db_path;
-    MnDatabaseDef();
-    explicit MnDatabaseDef(const QString& json_str);
-    MnDatabaseDef(const QString& dbName, const QVector<MnTableDef>& tbls, double ver);
-    [[nodiscard]] QString to_json() const;
+
+    QString to_json() const;
     MnTableDef table_by_name(const QString& table_name_to_find);
 };
 

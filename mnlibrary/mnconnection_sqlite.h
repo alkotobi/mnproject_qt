@@ -43,6 +43,13 @@ private:
                        const QList<QVariant> &params) override;
 
     bool isConnected() override;
+
+    bool execCreateTableSql(const MnTableDef &table) override;
+
+    bool execUpdateTableSql(const MnTableDef &table) override;
+
+    bool tableBackup(const QString &originalTableName, const QString newTableName) override;
+
 };
 
 #endif // MNCONNECTION_SQLITE_H

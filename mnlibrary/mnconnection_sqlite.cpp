@@ -1,6 +1,7 @@
 #include <QBitArray>
 #include "mnconnection_sqlite.h"
 #include "mnexception.h"
+#include "mnstrings.h"
 
 mnconnection_sqlite::mnconnection_sqlite(QString db_name, QObject *parent)
         : mnconnection(db_name, Sqlite) {
@@ -176,7 +177,7 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> &params, QList<QStri
                 break;
 
             default:
-                throw MNException("TYPE INHANDELED");
+                throw MNException("TYPE UNHANDLED");
                 break;
         }
         if (SQLITE_OK != rc) {
@@ -336,5 +337,174 @@ bool mnconnection_sqlite::execUpdateSql(const QString &tableName, const QString 
 
 bool mnconnection_sqlite::isConnected() {
     return fActive;
+}
+
+bool mnconnection_sqlite::execCreateTableSql(const MnTableDef &table) {
+    QString sql = "CREATE TABLE IF NOT EXISTS " + table.table_name + " (";
+    sql += "id INTEGER PRIMARY KEY AUTOINCREMENT,";
+    for (int i = 0; i < table.fields.size(); ++i) {
+        const MnFieldDef& field = table.fields[i];
+        QString fieldDefinition;
+        switch (field.field_type) {
+            case INTEGER:
+                fieldDefinition = field.field_name + " INTEGER";
+                break;
+            case TEXT:
+                fieldDefinition = field.field_name + " TEXT";
+                break;
+            case REAL:
+                fieldDefinition = field.field_name + " REAL";
+                break;
+            case VARCHAR:
+                fieldDefinition = field.field_name + " VARCHAR(" + QString::number(field.field_length) + ")";
+                break;
+            case BLOB:
+                fieldDefinition = field.field_name + " BLOB";
+                break;
+            case BOOL:
+                fieldDefinition = field.field_name + " BOOLEAN";
+                break;
+            case DATETIME:
+                fieldDefinition = field.field_name + " DATETIME";
+                break;
+        }
+        if (field.is_not_null) {
+            fieldDefinition += " NOT NULL";
+        }
+        if (field.is_unique) {
+            fieldDefinition += " UNIQUE";
+        }
+        if (!field.default_value.isEmpty()) {
+            fieldDefinition += " DEFAULT " + field.default_value;
+        }
+        if (i < table.fields.size() - 1) {
+            fieldDefinition += ",";
+        }
+        sql += fieldDefinition;
+    }
+    sql += ");";
+    return exec(sql);
+}
+
+
+QString addColumnSql(const MnFieldDef& fld,const QString &table_name) {
+    QString sql = "ALTER TABLE ";
+    // Assuming you have a way to determine the table name. Replace 'table_name' with the actual table name.
+    sql += table_name ;
+    sql += " ADD COLUMN ";
+    sql += fld.field_name + " ";
+
+    switch (fld.field_type) {
+        case INTEGER:
+            sql += "INTEGER";
+            break;
+        case TEXT:
+            sql += "TEXT";
+            break;
+        case REAL:
+            sql += "REAL";
+            break;
+        case VARCHAR:
+            sql += "VARCHAR(" + QString::number(fld.field_length) + ")";
+            break;
+        case BLOB:
+            sql += "BLOB";
+            break;
+        case BOOL:
+            sql += "BOOLEAN";
+            break;
+        case DATETIME:
+            sql += "DATETIME";
+            break;
+    }
+
+    if (fld.is_not_null) {
+        sql += " NOT NULL";
+    }
+    if (fld.is_unique) {
+        sql += " UNIQUE";
+    }
+    if (!fld.default_value.isEmpty()) {
+        sql += " DEFAULT " + fld.default_value;
+    }
+
+    return sql;
+}
+
+bool mnconnection_sqlite::tableBackup(const QString &originalTableName, const QString newTableName) {
+
+    // Create the backup table with the same structure and data as the original
+    QString createBackupTableSql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + originalTableName + ";";
+    bool created = exec(createBackupTableSql);
+    if (!created) {
+        qDebug() << "Failed to create backup table: " << newTableName ;
+        return false;
+    }
+    return true;
+}
+
+bool mnconnection_sqlite::execUpdateTableSql(const MnTableDef &table) {
+    QString checkTableExistsSql =
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='" + table.table_name + "';";
+    QList<QStringList> list;
+    QStringList fields;
+    QList<QVariant> v = {};
+    bool ret = this->exec(checkTableExistsSql, v, &list, &fields);
+    if (!ret) {
+        return false;
+    }
+    if (list.isEmpty()){
+        return execCreateTableSql(table);
+    }
+    QString getExistingFieldsSql = "PRAGMA table_info(" + table.table_name + ");";
+    QList<QVariant> params;
+    QList<QStringList> dataOut;
+    QStringList fieldNamesOut;
+
+    bool fieldsRetrieved = exec(getExistingFieldsSql, params, &dataOut, &fieldNamesOut);
+
+    if (fieldsRetrieved) {
+        QList<QString> existingFields;
+        for (const QStringList& row : dataOut) {
+            existingFields.append(row[1]);
+        }
+
+        // Compare with the fields in the provided table definition
+        ret = true;
+        exec("BEGIN;");
+        for (const MnFieldDef& fieldDef : table.fields) {
+            if (!existingFields.contains(fieldDef.field_name)) {
+                ret =ret && exec(addColumnSql(fieldDef,table.table_name));
+            }
+        }
+        bool backuped = false;
+        for (int i = 0; i < existingFields.size()-1; ++i) {
+            bool found = false;
+            for (const auto& f:table.fields) {
+                if (existingFields[i] == f.field_name){
+                    found = true;
+                    continue;
+                }
+            }
+            if (!found){
+                if (!backuped ) {
+                    QDateTime currentTime = QDateTime::currentDateTime();
+                    QString backupTableName = table.table_name + "_" + currentTime.toString("yyyyMMdd_hhmmss");
+                    tableBackup(table.table_name, backupTableName);
+                    backuped = true;
+                }
+              ret = ret && exec("ALTER TABLE "+table.table_name+" DROP COLUMN "+existingFields[i]) ;
+            }
+        }
+        if (ret) {
+            return exec("COMMIT;");
+        }
+        else {
+            exec("ROLLBACK;");
+            return false;
+        }
+    }
+    return true;
+
 }
 

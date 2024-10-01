@@ -230,23 +230,9 @@ void MnTableDef::print() {
     }
 }
 
-MnDatabaseDef::MnDatabaseDef() {}
 
-MnDatabaseDef::MnDatabaseDef(const QString& json_str) {
-    QJsonDocument doc = QJsonDocument::fromJson(json_str.toUtf8());
-    if (!doc.isObject()) return;
-    QJsonObject json = doc.object();
-    database_name = json["database_name"].toString();
-    QJsonArray tables_array = json["tables"].toArray();
-    for (const QJsonValue& value : tables_array) {
-        MnTableDef tbl;
-        tbl.mntable_from_json(value.toString());
-        tables.append(tbl);
-    }
-    version = json["version"].toDouble();
-    description = json["description"].toString();
-    db_path = json["db_path"].toString();
-}
+
+
 
 QString MnDatabaseDef::to_json() const {
     QJsonObject json;
@@ -271,10 +257,6 @@ MnTableDef MnDatabaseDef::table_by_name(const QString& table_name_to_find) {
     throw MNException(table_name_to_find + " not found");
 }
 
-MnDatabaseDef::MnDatabaseDef(const QString &dbName, const QVector<MnTableDef> &tbls, double ver)
-: database_name(dbName), tables(tbls), version(ver)  {
-
-}
 
 QString mapDbTypeToQString(DbTypes type) {
     switch (type) {
