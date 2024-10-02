@@ -49,7 +49,7 @@ add_executable(test_mntable
         ../mnlibrary/mnstrings.cpp
         ../mnlibrary/mnlog.cpp
         ../mnlibrary/mnconnection_sqlite.cpp
-
+        ../mnlibrary/mnview.cpp
 
 )
 target_link_libraries(test_mntable PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

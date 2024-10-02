@@ -1,6 +1,7 @@
 #include "mntable.h"
 #include "mnexception.h"
 #include <iostream>
+#include "mnview.h"
 
 
 bool MnTable::exec(const QString &sql, const QList<QVariant> &params) {
@@ -13,7 +14,7 @@ bool MnTable::exec(const QString &sql, const QList<QVariant> &params) {
 
 
 MnTable::MnTable(mnconnection *conn, MnTableDef table, QObject *parent)
-        : MnCustomQry(parent), _sql(table.selectSql()) {
+        : QObject(parent), _sql(table.selectSql()) {
     this->conn = conn;
     this->fTableDef = table;
 
@@ -156,7 +157,7 @@ void MnTable::removeDataSource(MnCustomDataSource *dts) {
     dataSources.removeOne(dts);
 }
 
-QString MnTable::fieldByName(const QString &name) {
+QString MnTable::fieldByName(const QString &name) const {
     if (name == "id") {
         return (*data())[row][0];
     }
@@ -222,7 +223,7 @@ bool MnTable::first() {
 
 
 MnTable::MnTable(mnconnection *conn, QString sql, QObject *parent)
-        : MnCustomQry(parent), _sql(sql) {
+        : QObject(parent), _sql(sql) {
     //fTableDef = conn->tableDef(_sql.tableName(), _sql.fields());
     this->conn = conn;
 }
@@ -231,7 +232,7 @@ QString MnTable::sqlText() {
     return _sql.text();
 }
 
-int MnTable::fieldIndex(const QString &fieldName) {
+int MnTable::fieldIndex(const QString &fieldName)const {
     return (int) _sql.fields().indexOf(fieldName);
 }
 
@@ -401,14 +402,94 @@ bool MnTable::priorFirst() {
     return true;
 }
 
-QList<QStringList> *MnTable::data() {
-    return &_data;
+QList<QStringList> *MnTable::data() const {
+    return (QList<QStringList> *)(&_data);
 }
 
 void MnTable::setFiltered(bool f) {
     _filtered = f;
 }
 
+MnTable &MnTable::operator=(const MnTable &other) {
+    if (this != &other) {
+        *this = MnTable(other);
+    }
+    return *this;
+}
+
+MnTable::MnTable(const MnTable &other)
+:_sql(other._sql)
+{
+    this->_data=*(other.data());
+    this->fTableDef = other.fTableDef;
+    this->fActive = other.fActive;
+    this->row = other.row;
+    this->conn = other.conn;
+}
+
+bool MnTable::find(const QString &fieldName, const QString &value) {
+    int bk = row;
+    int rowFound = -1;
+    while (row < recordCount()){
+        if(fieldByName(fieldName) == value){
+            rowFound = row;
+            break;
+        }
+        row ++;
+    }
+    row = bk;
+    if (rowFound !=-1){
+        goTo(rowFound);
+        return true;
+    }
+    return false;
+}
+
+bool MnTable::findId(int id) {
+    return find("id",QString::number(id));
+}
+
+bool MnTable::findId(const QString id) {
+    return find("id",id);
+}
+
+MnView MnTable::filter(const std::function<bool()> &lambda_search) {
+    MnTable tbl(*this);
+    QList<QStringList> list;
+    int bk = row;
+    priorFirst();
+    while (next()){
+        if (lambda_search()){
+            list.append((*data())[row]);
+        }
+    }
+    row = bk;
+    tbl._data = list;
+    return tbl;
+}
 
 
+//-------------------
+const QString &MnDataSetCol::value() const {
+    return _value;
+}
 
+void MnDataSetCol::setValue(const QString &value) {
+    _value = value;
+}
+
+bool MnDataSetCol::isEdited() const {
+    return _edited;
+}
+
+void MnDataSetCol::setEdited(bool edited) {
+    _edited = edited;
+}
+
+bool MnDataSetCol::isFiltered() const {
+    return _filtered;
+}
+
+void MnDataSetCol::setFiltered(bool filtered) {
+    _filtered = filtered;
+}

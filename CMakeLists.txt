@@ -38,8 +38,8 @@ set(PROJECT_SOURCES
         dtm.h dtm.cpp
         mnlibrary/db_basic.h mnlibrary/db_basic.cpp
         db_design.h
+        mnlibrary/mnview.cpp mnlibrary/mnview.h
         test.h
-
 
 )
 

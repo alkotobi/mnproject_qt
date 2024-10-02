@@ -27,7 +27,7 @@ public:
     explicit MNSql(QString sql);
     bool isChanged();
     QStringList insertFields();
-    QStringList fields();
+    QStringList fields() const;
     void fieldsClear();
     void fieldAppend(const QString& fld);
     void fieldAppend(const QStringList& flds);

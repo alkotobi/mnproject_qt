@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include "mnview.h"
 
 QString generateRandomAlphanumericText(int length) {
     const std::string alphanumericChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -162,6 +163,36 @@ CREATE TABLE nour (
     qry.setFieldValue(text_field, "NOUREDDINE");
     qry.post();
     qry.printAll();
+    MnTable tbl = qry;
+    std::cout << "-------------------------\n";
+
+    if (tbl.priorFirst())
+        while (tbl.next()) {
+            std::cout << tbl.fieldByName(id_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(integer_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(text_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(real_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(varchar_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(bool_field).toStdString() << "\t";
+            std::cout << tbl.fieldByName(datetime_field).toStdString() << "\t";
+            std::cout << "\n";
+        }
+
+    std::cout << "-------------------------\n";
+    qry.edit();
+    qry.setFieldValue(text_field, "ALI");
+    qry.post();
+    std::cout <<"tbl:"<< tbl.fieldByName(text_field).toStdString() << "\n";
+    std::cout <<"qry:"<< qry.fieldByName(text_field).toStdString() << "\n";
+    ret = tbl.fieldByName(text_field) == "NOUREDDINE" && qry.fieldByName(text_field).toStdString()=="ALI";
+    test(ret,"clone MnTable");
+    MnView view = tbl.filter([&tbl]() {
+        if (tbl.fieldByName(text_field) == "NOUREDDINE")
+            return true;
+        else
+            return false;
+    });
+    view.printAll();
     return ret;
 }
 

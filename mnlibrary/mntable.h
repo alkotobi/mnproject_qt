@@ -5,23 +5,40 @@
 #include <QObject>
 #include <QVariant>
 #include "mnsql.h"
-#include "mncustomquery.h"
 #include "mncustomdatasource.h"
 #include "mndb_types.h"
 
+class MnView;
 typedef enum {stEdit,stInsert,stBrowse} MNQryState;
-class MnTable : public MnCustomQry {
+struct MnDataSetCol {
+private:
+    bool _filtered = false;
+    bool _edited = false;
+    QString _value;
+public:
+    const QString &value() const;
 
+    void setValue(const QString &value);
+
+    bool isEdited() const;
+
+    void setEdited(bool edited);
+
+    bool isFiltered() const;
+
+    void setFiltered(bool filtered);
+
+public:
+};
+typedef QList<MnDataSetCol> MnDataSet;
+
+class MnTable: public QObject{
+Q_OBJECT
 typedef bool (*MnNotify)(QObject *);
 typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QString &newVal);
 private:
-    mnconnection *conn=nullptr;
-    QList<QStringList> _data={};
-    QList<QStringList> _dataFiltered={};
+
     MNSql _sql;
-    int row = -1;
-    //int fRecordCount=-1;
-    bool fActive=false;
     MNQryState fState=stBrowse;
     QStringList fOldVals;
     bool fNotEdited = true;
@@ -33,13 +50,23 @@ private:
     QList<MnNotify> afterPostNtfs;
     QList<MnBeforeSetFieldVal> beforeSetFieldValProcs={};
     QList<MnCustomDataSource*> dataSources;
-    MnTableDef fTableDef={};
+
     QString sqlText();
     QList<QVariant> toVariants(const QStringList& fields);
     bool doBeforeSetFieldVal(MnTable *tbl,const QString &oldVal,QString &newVal);
     bool goToNoBoundChenck(int ind);
-    QList<QStringList> *data();
+
     bool _filtered = false;
+protected:
+    MnTableDef fTableDef={};
+//int fRecordCount=-1;
+bool fActive=false;
+    int row = -1;
+    mnconnection *conn=nullptr;
+    QList<QStringList> *data() const;
+
+
+    QList<QStringList> _data={};
 public:
 
     MnTable(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
@@ -65,13 +92,13 @@ public:
     void execAfterRemove();
     bool execBeforePost();
     void execAfterPost();
-    void addDataSource(MnCustomDataSource *dts) override;
-    void removeDataSource(MnCustomDataSource *dts)override;
-    QString fieldByName(const QString& name)override;
-    QString fieldByInd(const int index)override;
-    void setFieldValue(const QString& fieldName, const QString &val)override;
-    void setFieldValue(int col, const QString &val)override;
-    int fieldIndex(const QString& fieldName);
+    void addDataSource(MnCustomDataSource *dts) ;
+    void removeDataSource(MnCustomDataSource *dts);
+    QString fieldByName(const QString& name) const ;
+    QString fieldByInd(const int index);
+    void setFieldValue(const QString& fieldName, const QString &val);
+    void setFieldValue(int col, const QString &val);
+    int fieldIndex(const QString& fieldName) const;
     void printCurrent();
     void printAll();
     void printTableDef();
@@ -80,8 +107,12 @@ public:
     bool isOpen() const;
     MnTableDef tableDef();
     void setFiltered(bool f);
-
-
+    MnTable& operator=(const MnTable &other);
+    MnTable(const MnTable &other);
+    bool find(const QString &fieldName,const QString& value);
+    bool findId(int id);
+    bool findId(QString id);
+    MnView filter(const std::function<bool()>& lambda_search);
 };
 
 #endif // MNQRY_H

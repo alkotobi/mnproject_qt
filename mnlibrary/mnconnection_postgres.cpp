@@ -331,7 +331,7 @@ QString mnconnection_postgres::updateSql(const QString &tableName, const QString
 
     QStringList l = fields.split(',');
     QString s = "UPDATE " + tableName + " SET " + l[0] + "=$1";
-    for (int i = 1; i < l.count() - 1; ++i) {
+    for (int i = 1; i < l.count() ; ++i) {
         s = s + "," + l[i] + "=$" + QString::number(i + 1);
     }
     if (where != "") {
@@ -565,7 +565,7 @@ bool mnconnection_postgres::execUpdateTableSql(const MnTableDef &table) {
             }
         }
         bool backuped = false;
-        for (int i = 0; i < existingFields.size() - 1; ++i) {
+        for (int i = 0; i < existingFields.size(); ++i) {
             bool found = false;
             for (const auto& f : table.fields) {
                 if (existingFields[i] == f.field_name) {

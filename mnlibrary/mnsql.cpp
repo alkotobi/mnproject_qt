@@ -198,7 +198,7 @@ void MNSql::insertFieldsClear() {
 
 }
 
-QStringList MNSql::fields() {
+QStringList MNSql::fields() const {
     return fFields;
 }
 
