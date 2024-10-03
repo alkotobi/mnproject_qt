@@ -16,10 +16,11 @@ class mnconnection_sqlite : public mnconnection
 private:
     QString insertSql(const QString &tableName, const QString &fields) ;
     QString updateSql(const QString &tableName, const QString &fields, const QString &where) ;
+    mnconnection_sqlite();
 
     // mnconnection interface
 public:
-    mnconnection_sqlite();
+
     explicit mnconnection_sqlite(QString db_name,QObject *parent=nullptr) ;
     ~mnconnection_sqlite();
     bool connect() override;

@@ -9,6 +9,7 @@
 class MnTable;
 
 typedef enum{INTEGER,TEXT,REAL,VARCHAR,BLOB,BOOL,DATETIME} DbTypes;
+enum Provider{Sqlite,Postgres};
 
 struct MnFieldDef {
 public:
@@ -73,6 +74,7 @@ const struct MnFieldDef mnfieldId = {
         .ind = 0
 };
 
+
 struct MnDatabaseDef {
 public:
     QString database_name;
@@ -80,7 +82,6 @@ public:
     QVector<MnTableDef> tables;
     double version;
     QString description;
-
     QString to_json() const;
     MnTableDef table_by_name(const QString& table_name_to_find);
 };

@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     fields.clear();
     list.clear();
     v={"NOUREDDINE","ALI"};
-    ret = ret && conn.exec(convertSqliteToPostgres("SELECT DISTINCT name FROM nour where \"name\"=? OR \"name\"=?" ), v, &list, &fields);
+    ret = ret && conn.exec("SELECT DISTINCT name FROM nour where \"name\"=? OR \"name\"=?" , v, &list, &fields);
     ret = ret && list.size()==2;
     ret = ret && list[0][0] =="NOUREDDINE" ;
     ret = ret && list[1][0] =="ALI" ;

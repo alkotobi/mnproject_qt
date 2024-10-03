@@ -1,6 +1,7 @@
 #include "mntable.h"
 #include "mnexception.h"
 #include <iostream>
+#include <utility>
 #include "mnview.h"
 
 
@@ -13,11 +14,11 @@ bool MnTable::exec(const QString &sql, const QList<QVariant> &params) {
 }
 
 
-MnTable::MnTable(mnconnection *conn, MnTableDef table, QObject *parent)
-        : QObject(parent), _sql(table.selectSql()) {
+MnTable::MnTable(mnconnection *conn, MnTableDef table,QString where , QList<QVariant> params, QObject *parent)
+        : QObject(parent), _sql(table.selectSql(),where) {
     this->conn = conn;
     this->fTableDef = table;
-
+    this->fParams=params;
 }
 
 void MnTable::close() {
@@ -34,6 +35,8 @@ bool MnTable::open(QList<QVariant> params) {
     if (fActive) {
         throw MNException("can not perform this operation on an open qry");
     }
+    if(!params.isEmpty())
+        fParams = params;
     QStringList fld = {};
     QStringList *fldPtr = &fld;
     QString s = sqlText();
@@ -42,7 +45,10 @@ bool MnTable::open(QList<QVariant> params) {
     } else {
         fldPtr = nullptr;
     }
-    bool ret = this->conn->exec(s, params, data(), fldPtr);
+    bool ret = this->conn->exec(s, fParams, data(), fldPtr);
+    if (!ret){
+        return false;
+    }
     if (fldPtr) {
         if (!fld.contains("id")) {
             fld.insert(0, "id");
@@ -222,10 +228,11 @@ bool MnTable::first() {
 }
 
 
-MnTable::MnTable(mnconnection *conn, QString sql, QObject *parent)
+MnTable::MnTable(mnconnection *conn, QString sql, QList<QVariant> params,QObject *parent)
         : QObject(parent), _sql(sql) {
     //fTableDef = conn->tableDef(_sql.tableName(), _sql.fields());
     this->conn = conn;
+    this->fParams = params;
 }
 
 QString MnTable::sqlText() {
@@ -410,21 +417,37 @@ void MnTable::setFiltered(bool f) {
     _filtered = f;
 }
 
-MnTable &MnTable::operator=(const MnTable &other) {
-    if (this != &other) {
-        *this = MnTable(other);
+void MnTable::mntableCopy(MnTable *des,const MnTable &other) {
+    if (des != &other) {
+        des->_data = *(other.data());
+        des->fTableDef = other.fTableDef;
+        des->fActive = other.fActive;
+        des->row = other.row;
+        des->conn = other.conn;
+        des->_sql = other._sql;
+        des->fState =other.fState;
+        des->fNotEdited = other.fNotEdited;
+        des->fParams = other.fParams;
     }
-    return *this;
 }
+
+    MnTable &MnTable::operator=(const MnTable &other) {
+        if (this->fActive){
+            qDebug()<<"can not assign to an open MnTable";
+            throw MNException("can not assign to an open MnTable");
+        }
+        if (this != &other) {
+            this->_data.clear();
+            mntableCopy(this,other);
+        }
+        return *this;
+    }
+
 
 MnTable::MnTable(const MnTable &other)
 :_sql(other._sql)
 {
-    this->_data=*(other.data());
-    this->fTableDef = other.fTableDef;
-    this->fActive = other.fActive;
-    this->row = other.row;
-    this->conn = other.conn;
+    mntableCopy(this,other);
 }
 
 bool MnTable::find(const QString &fieldName, const QString &value) {
@@ -466,6 +489,10 @@ MnView MnTable::filter(const std::function<bool()> &lambda_search) {
     row = bk;
     tbl._data = list;
     return tbl;
+}
+
+bool MnTable::isEmpty() {
+    return data()->isEmpty();
 }
 
 

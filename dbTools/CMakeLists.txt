@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         ../mnlibrary/mncustomquery.cpp
         ../mnlibrary/sqlite3.c
         ../mnlibrary/mnfiles.cpp
+        ../mnlibrary/mnview.cpp
 
 )
 

@@ -4,7 +4,7 @@
 
 
 
-typedef enum{Sqlite,Postgres,Mysql} Db_type;
+
 
 class mnconnection:public QObject
 {
@@ -14,14 +14,14 @@ protected:
     bool fActive =false;
 public:
     mnconnection();
-    explicit mnconnection(QString &db_name,Db_type db_type=Sqlite);
-    mnconnection(QString &db_name, Db_type db_type, QString &server, int port, QString &user_name, QString &password);
+    explicit mnconnection(QString &db_name,Provider db_type=Sqlite);
+    mnconnection(QString &db_name, Provider db_type, QString &server, int port, QString &user_name, QString &password);
     QString db_name;
     QString server;
     int port{};
     QString user_name;
     QString password;
-    Db_type db_type;
+    Provider db_type;
     virtual bool connect()=0;
     virtual bool exec(QString sql)=0;
     virtual bool exec(QString sql,QList<QVariant> params)=0;

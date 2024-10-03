@@ -2,7 +2,7 @@
 #include "mnstrings.h"
 #include "mnexception.h"
 
-MNSql::MNSql(QString sql) {
+MNSql::MNSql(QString sql,QString where) {
     fText = "";
     QString lowerCaseSql = sql.toLower();
     sql = removeExtraSpacesForSqlText(sql);
@@ -53,6 +53,9 @@ MNSql::MNSql(QString sql) {
         fFields.insert(0,"id");
     }
     fChanged = true;
+    if (where !=""){
+        fWhere = where;
+    }
 
 }
 
@@ -200,6 +203,32 @@ void MNSql::insertFieldsClear() {
 
 QStringList MNSql::fields() const {
     return fFields;
+}
+
+void MNSql::copy(MNSql* dest, const MNSql& src) {
+    dest->fText = src.fText;
+    dest->fTableName = src.fTableName;
+    dest->fFields = src.fFields;
+    dest->fWhere = src.fWhere;
+    dest->fOrderBy = src.fOrderBy;
+    dest->fGroupedBy = src.fGroupedBy;
+    dest->fInsertFields = src.fInsertFields;
+    dest->fLimit = src.fLimit;
+    dest->fOffset = src.fOffset;
+    dest->fParams = src.fParams;
+    dest->fChanged = src.fChanged;
+}
+
+MNSql::MNSql(const MNSql& other)
+ {
+    copy(this,other);
+ }
+
+MNSql& MNSql::operator=(const MNSql& other) {
+    if (this!= &other) {
+        copy(this,other);
+    }
+    return *this;
 }
 
 

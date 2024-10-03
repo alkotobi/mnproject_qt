@@ -22,9 +22,11 @@ private:
     QList<QVariant> fParams;
     bool fChanged;
     void setFields(const QStringList& AValue);
-
+    void copy(MNSql *dest, const MNSql &src);
 public:
-    explicit MNSql(QString sql);
+    explicit MNSql(QString sql,QString where = "");
+    MNSql(const MNSql &other);
+    MNSql & operator=(const MNSql& other);
     bool isChanged();
     QStringList insertFields();
     QStringList fields() const;
@@ -44,4 +46,6 @@ public:
     void setChanged(bool AValue);
 
     void insertFieldsClear();
+
+
 };

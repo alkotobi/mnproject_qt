@@ -19,6 +19,19 @@ int id_names = 0;
 #include <QList>
 
 
+QString convertSqlitePlaceHolder(const QString &sqliteSql){
+    QString result=sqliteSql;
+    int placeholderCount = 1;
+    int index = (int) result.indexOf('?');
+    while (index != -1) {
+        QString plc = "$" + QString::number(placeholderCount++);
+        result.replace(index, 1, plc);
+        index = (int) result.indexOf('?');
+    }
+
+    return result;
+}
+
 mnconnection_postgres::mnconnection_postgres(QString db_name, QString server, int port, QString user_name,
                                              QString password, QObject *parent)
         : mnconnection(db_name, Postgres, server, port, user_name, password) {
@@ -57,6 +70,8 @@ bool mnconnection_postgres::exec(QString sql) {
     PQclear(res);
     return true;
 }
+
+
 
 QString convertSqliteToPostgres(const QString &sqliteSql) {
     // Convert INTEGER PRIMARY KEY AUTOINCREMENT
@@ -160,7 +175,7 @@ bool do_exec(PGconn *db, PGresult *res, int sqlType, const QString &sql, QList<Q
     if (res) {
         PQclear(res);
     }
-    std::string s = sql.toStdString();
+    std::string s = convertSqlitePlaceHolder(sql).toStdString();
     const char *command = s.c_str();
     QList<QByteArray> param_values;
     QList<int> param_lengths;
@@ -231,7 +246,7 @@ mnconnection_postgres::exec(QString sql, QList<QVariant> &params, QList<QStringL
                             QStringList *fieldNamesOut) {
     if (!dataOut->isEmpty()) dataOut->clear();
     PGresult *res = nullptr;
-    std::string s = sql.toStdString();
+    std::string s = convertSqlitePlaceHolder(sql).toStdString();
     //---------------no params---------------------
     if (params.count() == 0) {
         res = PQexec(db, s.c_str());

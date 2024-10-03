@@ -42,6 +42,7 @@ private:
     MNQryState fState=stBrowse;
     QStringList fOldVals;
     bool fNotEdited = true;
+    QList<QVariant> fParams;
     QList<MnNotify> beforeScrollNtfs;
     QList<MnNotify> afterScrollNtfs;
     QList<MnNotify> beforeRemoveNtfs;
@@ -67,10 +68,11 @@ bool fActive=false;
 
 
     QList<QStringList> _data={};
+    void mntableCopy(MnTable *des, const MnTable &other);
 public:
 
-    MnTable(mnconnection *conn, MnTableDef table, QObject *parent = nullptr);
-    MnTable(mnconnection *conn, QString sql, QObject *parent = nullptr);
+    MnTable(mnconnection *conn, MnTableDef table,QString where = "", QList<QVariant> params={}, QObject *parent = nullptr);
+    MnTable(mnconnection *conn, QString sql, QList<QVariant> params={}, QObject *parent = nullptr);
     bool exec(const QString &sql,const QList<QVariant>& params = {});
     bool open(QList<QVariant> params = {});
     void close();
@@ -113,6 +115,8 @@ public:
     bool findId(int id);
     bool findId(QString id);
     MnView filter(const std::function<bool()>& lambda_search);
+    bool isEmpty();
+
 };
 
 #endif // MNQRY_H

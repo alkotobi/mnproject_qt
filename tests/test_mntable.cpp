@@ -93,7 +93,7 @@ CREATE TABLE nour (
     ret = conn.connect();
     ret = ret && conn.isConnected();
     test(ret, "connect to db");
-    MnTable qry(&conn, "SELECT * FROM nour");
+    MnTable qry(&conn, "SELECT * FROM nour", {});
     ret = ret && qry.exec("DROP TABLE IF EXISTS nour");
     test(ret, "drop table");
     ret = ret && qry.exec(sqlCreateTablePq);
@@ -193,6 +193,12 @@ CREATE TABLE nour (
             return false;
     });
     view.printAll();
+    std::cout << "-------------------------\n";
+    qry.close();
+    qry = MnTable(&conn,"select * from nour where text_field=?",{"ALI"});
+    ret = qry.open();
+    test(ret,"open MnTable with params");
+    qry.printAll();
     return ret;
 }
 
@@ -215,7 +221,7 @@ CREATE TABLE nour (
     bool ret = conn.connect();
     ret = ret && conn.isConnected();
     test(ret, "connect to db");
-    MnTable qry(&conn, "SELECT * FROM nour");
+    MnTable qry(&conn, "SELECT * FROM nour", {});
     ret = ret && qry.exec("DROP TABLE IF EXISTS nour");
     test(ret, "drop table");
     ret = ret && qry.exec(sqlCreateTableLite);

@@ -1,7 +1,7 @@
 #include <QBitArray>
 #include "mnconnection_sqlite.h"
 #include "mnexception.h"
-#include "mnstrings.h"
+
 
 mnconnection_sqlite::mnconnection_sqlite(QString db_name, QObject *parent)
         : mnconnection(db_name, Sqlite) {
@@ -264,7 +264,7 @@ mnconnection_sqlite::mnconnection_sqlite()
 {
     db=nullptr;
     db_name = "";
-    db_type=Db_type::Sqlite;
+    db_type=Provider::Sqlite;
 }
 
 

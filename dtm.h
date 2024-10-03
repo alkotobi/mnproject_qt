@@ -4,6 +4,17 @@
 #include "db_design.h"
 #include "mnlibrary/mntable.h"
 #include <QObject>
+
+struct DbInfo{
+    QString dbName="";
+    bool isActive = false;
+    bool isServer = false;
+    QString server = "";
+    int port =-1;
+    QString userName = "";
+    QString password = "";
+    Provider provider;
+};
 class Dtm:public QObject
 {
     Q_OBJECT
@@ -24,6 +35,16 @@ public:
     MnTable *tblDatabases();
 
     mnconnection *connMain();
+
+    void creatLocalDb(const char *string);
+
+    void regesterDb(const DbInfo &info);
+
+    void activateDb(const QString &name);
+
+    DbInfo activeDbName();
+
+    DbInfo dbInfo(QString name);
 };
 
 #endif // DTM_H
