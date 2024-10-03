@@ -3,6 +3,9 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include "frmlogin.h"
+#include "dtm.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -17,7 +20,14 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    MainWindow w;
-    w.show();
-    return a.exec();
+    Dtm _dtm;
+    dtm = &_dtm;
+    FrmLogin frmLogin;
+    if(frmLogin.exec()){
+        MainWindow w;
+        w.show();
+        return a.exec();
+    }
+    return 0;
+
 }

@@ -5,6 +5,7 @@
 #include <QFile>
 #include "mnlibrary/mndb_types.h"
 #include "mnlibrary/mnconnection_postgres.h"
+#include "db_design.h"
 
 Dtm::Dtm() {};
 
@@ -15,19 +16,27 @@ mnconnection *Dtm::connOptions() {
         bool exists = QFile(path).exists();
         _connOptions = new mnconnection_sqlite(path, this);
         if (!_connOptions->connect()) {
-            QMessageBox::critical(nullptr, "Error", "CANT CONNECT TO SQLIE DB:" + path);
+            qDebug()<<  "CANT CONNECT TO SQLIE DB:" + path;
             throw MNException("CANT CONNECT TO SQLIE DB:" + path);
         }
 
         for (const auto &tbl: options_def.tables) {
             if (!exists) {
-                _connOptions->execCreateTableSql(tbl);
-                creatLocalDb("default");
-                regesterDb({.dbName="default",.isServer=false,.provider=Sqlite});
-                activateDb("default");
+                if(!_connOptions->execCreateTableSql(tbl)){
+                    qDebug()<<  "CANT CREATE TABLE:" + tbl.table_name+"\n"+_connOptions->errorMessage();
+                    throw MNException("CANT CREATE TABLE:" + tbl.table_name+"\n"+_connOptions->errorMessage());
+                }
             } else {
-                _connOptions->execUpdateTableSql(tbl);
+                if(!_connOptions->execUpdateTableSql(tbl)){
+                    qDebug()<<  "CANT UPDATE TABLE:" + tbl.table_name+"\n"+_connOptions->errorMessage();
+                    throw MNException("CANT UPDATE TABLE:" + tbl.table_name+"\n"+_connOptions->errorMessage());
+                }
             }
+        }
+        if (!exists) {
+            creatLocalDb("default");
+            regesterDb({.dbName="default", .isServer=false, .provider=Sqlite});
+            activateDb("default");
         }
     }
     return _connOptions;
@@ -35,10 +44,10 @@ mnconnection *Dtm::connOptions() {
 
 MnTable *Dtm::tblGroup() {
     if (!_tblGroup) {
-        _tblGroup = new MnTable(connOptions(), main_group_def,"",{}, this);
+        _tblGroup = new MnTable(connOptions(), main_groups_def,"",{}, this);
         if (!_tblGroup->open()) {
-            QMessageBox::critical(nullptr, "Error", "CANT OPEN TABLE :" + main_group_def.table_name);
-            throw MNException("CANT OPEN TABLE :" + main_group_def.table_name);
+            qDebug()<<  "CANT OPEN TABLE :" + main_groups_def.table_name;
+            throw MNException("CANT OPEN TABLE :" + main_groups_def.table_name);
         }
     }
     return _tblGroup;
@@ -49,11 +58,11 @@ Dtm::~Dtm() {
 }
 
 MnTable *Dtm::tblUser() {
-    if (!_tblUser) {
-        _tblUser = new MnTable(connOptions(), main_user_def,"",{}, this);
+    if (_tblUser == nullptr) {
+        _tblUser = new MnTable(connOptions(), main_users_def,"",{}, this);
         if (!_tblUser->open()) {
-            QMessageBox::critical(nullptr, "Error", "CANT OPEN TABLE :" + main_user_def.table_name);
-            throw MNException("CANT OPEN TABLE :" + main_user_def.table_name);
+            qDebug()<<  "CANT OPEN TABLE :" + main_users_def.table_name;
+            throw MNException("CANT OPEN TABLE :" + main_users_def.table_name);
         }
     }
     return _tblUser;
@@ -63,7 +72,7 @@ MnTable *Dtm::tblDatabases() {
     if (!_tblDatabases) {
         _tblDatabases = new MnTable(connOptions(), options_databases_def,"",{}, this);
         if (!_tblDatabases->open()) {
-            QMessageBox::critical(nullptr, "Error", "CANT OPEN TABLE :" + options_databases_def.table_name);
+            qDebug()<<  "CANT OPEN TABLE :" + options_databases_def.table_name;
             throw MNException("CANT OPEN TABLE :" + options_databases_def.table_name);
         }
     }
@@ -87,7 +96,7 @@ mnconnection *Dtm::connMain() {
                 break;
         }
         if (!_connMain->connect()){
-            QMessageBox::critical(nullptr, "Error", "CANT connect to db  :" +dbInfo.dbName+" " +_connMain->errorMessage());
+            qDebug()<<  "CANT connect to db  :" +dbInfo.dbName+" " +_connMain->errorMessage();
             throw MNException("CANT connect to db  :" +dbInfo.dbName+" " +_connMain->errorMessage());
         }
     }
@@ -97,11 +106,24 @@ mnconnection *Dtm::connMain() {
 
 void Dtm::creatLocalDb(const char *string) {
     mnconnection_sqlite conn(makeDbPath("default"));
-    for (const auto& tbl :main_def.tables) {
-        conn.execCreateTableSql(tbl);
+    if(!conn.connect()){
+        qDebug()<<  "CANT connect to db  :default ;\n" +conn.errorMessage();
+        throw MNException("CANT connect to db  :default ;\n"+conn.errorMessage());
     }
-    conn.execInsertSql(main_group_def.table_name,main_group_name,{"admin"});
-    conn.execInsertSql(main_user_def.table_name,main_user_name+","+main_user_pass,{"admin","admin"});
+    for (const auto& tbl :main_def.tables) {
+        if(!conn.execCreateTableSql(tbl)){
+            qDebug()<<  "CANT CREATE TABLE:" + tbl.table_name+"\n"+conn.errorMessage();
+            throw MNException("CANT CREATE TABLE:" + tbl.table_name+"\n"+conn.errorMessage());
+        }
+    }
+    if(conn.execInsertSql(main_groups_def.table_name,main_groups_name,{"admin"})==-1){
+        qDebug()<<  "CANT INSERT :admin in " + main_groups_def.table_name+"\n"+conn.errorMessage();
+        throw MNException("CANT INSERT :admin in " + main_groups_def.table_name+"\n"+conn.errorMessage());
+    }
+    if(conn.execInsertSql(main_users_def.table_name,main_users_name+","+main_users_pass,{"admin","admin"})==-1){
+        qDebug()<< "CANT INSERT :admin,admin in " + main_users_def.table_name+"\n"+conn.errorMessage();
+        throw MNException("CANT INSERT :admin,admin in " + main_users_def.table_name+"\n"+conn.errorMessage());
+    }
 }
 QString boolToStrInt(bool val){
     if (val)
@@ -111,31 +133,31 @@ QString boolToStrInt(bool val){
 }
 
 void Dtm::regesterDb(const DbInfo &info) {
-    MnTable tbl(_connOptions,options_databases_def);
+    MnTable tbl(_connOptions,"select db_name from databases");
     if (!tbl.open()){
-        QMessageBox::critical(nullptr, "Error", _connOptions->errorMessage());
+        qDebug()<< _connOptions->errorMessage();
         throw MNException(_connOptions->errorMessage());
     }
     tbl.append();
     tbl.setFieldValue(options_databases_db_name, info.dbName);
-    tbl.setFieldValue(options_databases_is_active,boolToStrInt(info.isActive));
-    tbl.setFieldValue(options_databases_is_server, boolToStrInt(info.isServer));
-    tbl.setFieldValue(options_databases_provider,QString::number(info.provider));
-    tbl.setFieldValue(options_databases_server, info.server);
-    tbl.setFieldValue(options_databases_port, QString::number(info.port));
-    tbl.setFieldValue(options_databases_user_name, info.userName);
-    tbl.setFieldValue(options_databases_password, info.password);
+//    tbl.setFieldValue(options_databases_is_active,boolToStrInt(info.isActive));
+//    tbl.setFieldValue(options_databases_is_server, boolToStrInt(info.isServer));
+//    tbl.setFieldValue(options_databases_provider,QString::number(info.provider));
+//    tbl.setFieldValue(options_databases_server, info.server);
+//    tbl.setFieldValue(options_databases_port, QString::number(info.port));
+//    tbl.setFieldValue(options_databases_user_name, info.userName);
+//    tbl.setFieldValue(options_databases_password, info.password);
     tbl.post();
 }
 
 void Dtm::activateDb(const QString &name) {
-    MnTable tbl(_connOptions,options_databases_def);
+    MnTable tbl(_connOptions,"select * from databases");
     if (!tbl.open()){
-        QMessageBox::critical(nullptr, "Error", _connOptions->errorMessage());
+        qDebug()<<_connOptions->errorMessage();
         throw MNException(_connOptions->errorMessage());
     }
     if(!tbl.find(options_databases_db_name,name)){
-        QMessageBox::critical(nullptr, "Error", "cant find database:"+name);
+        qDebug()<<"cant find database:" <<name;
         throw MNException("cant find database:"+name);
     }
     tbl.edit();

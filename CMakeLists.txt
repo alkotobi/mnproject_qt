@@ -19,6 +19,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        frmlogin.cpp
+        frmlogin.h
+        frmlogin.ui
         ./mnlibrary/mnconnection.h mnlibrary/mnconnection.cpp
         mnlibrary/sqlite3.h mnlibrary/sqlite3.c
         mnlibrary/mnconnection_sqlite.h mnlibrary/mnconnection_sqlite.cpp
@@ -39,6 +42,7 @@ set(PROJECT_SOURCES
         mnlibrary/db_basic.h mnlibrary/db_basic.cpp
         db_design.h
         mnlibrary/mnview.cpp mnlibrary/mnview.h
+
         test.h
 
 )

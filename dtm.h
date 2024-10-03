@@ -47,4 +47,5 @@ public:
     DbInfo dbInfo(QString name);
 };
 
+inline Dtm *dtm;
 #endif // DTM_H

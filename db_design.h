@@ -2,11 +2,11 @@
 #include <QString>
 #include "mnlibrary/mndb_types.h"
 //-------------------------------------------------------------------
-//--------------------------------group--------------------------
+//--------------------------------groups--------------------------
 //-------------------------------------------------------------------
-static QString main_group_table_name="group";
-static QString main_group_name="name";
-static const struct MnFieldDef main_group_name_def = {
+static QString main_groups_table_name="groups";
+static QString main_groups_name="name";
+static const struct MnFieldDef main_groups_name_def = {
 .field_name = "name",
 .field_type = VARCHAR,
 .field_length = 255,
@@ -23,8 +23,8 @@ static const struct MnFieldDef main_group_name_def = {
 .is_calculated = false,
 .ind = 1
 };
-static QString main_group_can_login="can_login";
-static const struct MnFieldDef main_group_can_login_def = {
+static QString main_groups_can_login="can_login";
+static const struct MnFieldDef main_groups_can_login_def = {
 .field_name = "can_login",
 .field_type = BOOL,
 .field_length = 0,
@@ -41,8 +41,8 @@ static const struct MnFieldDef main_group_can_login_def = {
 .is_calculated = false,
 .ind = 2
 };
-static QString main_group_can_create_db="can_create_db";
-static const struct MnFieldDef main_group_can_create_db_def = {
+static QString main_groups_can_create_db="can_create_db";
+static const struct MnFieldDef main_groups_can_create_db_def = {
 .field_name = "can_create_db",
 .field_type = BOOL,
 .field_length = 0,
@@ -59,8 +59,8 @@ static const struct MnFieldDef main_group_can_create_db_def = {
 .is_calculated = false,
 .ind = 7
 };
-static QString main_group_can_edit_db="can_edit_db";
-static const struct MnFieldDef main_group_can_edit_db_def = {
+static QString main_groups_can_edit_db="can_edit_db";
+static const struct MnFieldDef main_groups_can_edit_db_def = {
 .field_name = "can_edit_db",
 .field_type = BOOL,
 .field_length = 0,
@@ -77,8 +77,8 @@ static const struct MnFieldDef main_group_can_edit_db_def = {
 .is_calculated = false,
 .ind = 7
 };
-static QString main_group_can_del_db="can_del_db";
-static const struct MnFieldDef main_group_can_del_db_def = {
+static QString main_groups_can_del_db="can_del_db";
+static const struct MnFieldDef main_groups_can_del_db_def = {
 .field_name = "can_del_db",
 .field_type = BOOL,
 .field_length = 0,
@@ -95,9 +95,9 @@ static const struct MnFieldDef main_group_can_del_db_def = {
 .is_calculated = false,
 .ind = 7
 };
-static const MnTableDef main_group_def ={
-        .table_name = "group",
-        .fields={main_group_name_def,main_group_can_login_def,main_group_can_create_db_def,main_group_can_edit_db_def,main_group_can_del_db_def,},
+static const MnTableDef main_groups_def ={
+        .table_name = "groups",
+        .fields={main_groups_name_def,main_groups_can_login_def,main_groups_can_create_db_def,main_groups_can_edit_db_def,main_groups_can_del_db_def,},
         .default_data = "[",
         .description = "",
         .insert_params_count =0,
@@ -105,11 +105,11 @@ static const MnTableDef main_group_def ={
         .create_sql = "",
 };
  //-------------------------------------------------------------------
-//--------------------------------user--------------------------
+//--------------------------------users--------------------------
 //-------------------------------------------------------------------
-static QString main_user_table_name="user";
-static QString main_user_name="name";
-static const struct MnFieldDef main_user_name_def = {
+static QString main_users_table_name="users";
+static QString main_users_name="name";
+static const struct MnFieldDef main_users_name_def = {
 .field_name = "name",
 .field_type = VARCHAR,
 .field_length = 255,
@@ -126,8 +126,8 @@ static const struct MnFieldDef main_user_name_def = {
 .is_calculated = false,
 .ind = 7
 };
-static QString main_user_pass="pass";
-static const struct MnFieldDef main_user_pass_def = {
+static QString main_users_pass="pass";
+static const struct MnFieldDef main_users_pass_def = {
 .field_name = "pass",
 .field_type = VARCHAR,
 .field_length = 255,
@@ -144,8 +144,8 @@ static const struct MnFieldDef main_user_pass_def = {
 .is_calculated = false,
 .ind = 7
 };
-static QString main_user_id_group="id_group";
-static const struct MnFieldDef main_user_id_group_def = {
+static QString main_users_id_group="id_group";
+static const struct MnFieldDef main_users_id_group_def = {
 .field_name = "id_group",
 .field_type = INTEGER,
 .field_length = 0,
@@ -162,9 +162,9 @@ static const struct MnFieldDef main_user_id_group_def = {
 .is_calculated = false,
 .ind = 8
 };
-static const MnTableDef main_user_def ={
-        .table_name = "user",
-        .fields={main_user_name_def,main_user_pass_def,main_user_id_group_def,},
+static const MnTableDef main_users_def ={
+        .table_name = "users",
+        .fields={main_users_name_def,main_users_pass_def,main_users_id_group_def,},
         .default_data = "[",
         .description = "",
         .insert_params_count =0,
@@ -241,7 +241,7 @@ static const MnTableDef main_db_info_def ={
  static const MnDatabaseDef main_def ={
    .database_name="main",
    .db_path="",
-   .tables={main_group_def,main_user_def,main_db_info_def},
+   .tables={main_groups_def,main_users_def,main_db_info_def},
    .version=1.0,
    .description=""
 };

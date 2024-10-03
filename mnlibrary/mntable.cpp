@@ -53,9 +53,11 @@ bool MnTable::open(QList<QVariant> params) {
         if (!fld.contains("id")) {
             fld.insert(0, "id");
         }
-        fTableDef = conn->tableDef(_sql.tableName(), fld);
         _sql.fieldAppend(fld);
         _sql.insertFieldsClear();
+    }
+    if (fTableDef.table_name ==""){
+        fTableDef = conn->tableDef(_sql.tableName(), _sql.fields());
     }
 //    fRecordCount = (int) data()->count();
     if (ret) {

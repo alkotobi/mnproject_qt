@@ -64,7 +64,7 @@ bool mnconnection_sqlite::exec(QString sql, QList<QVariant> params) {
             case QMetaType::QString: {
                 std::string ss = params[i].toString().toStdString();
                 buffer = ss.c_str();
-                rc = sqlite3_bind_text(stmt, i + 1, buffer, -1, SQLITE_STATIC);
+                rc = sqlite3_bind_text(stmt, i + 1, buffer, -1, SQLITE_TRANSIENT);
             }
                 break;
             case QMetaType::Int:
@@ -250,7 +250,7 @@ QString mnconnection_sqlite::insertSql(const QString &tableName, const QString &
 QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &fields, const QString &where)
 {
     QStringList l = fields.split(',');
-    QString s= "UPDATE "+tableName+" SET " + l[0]+="?";
+    QString s= "UPDATE "+tableName+" SET " + l[0]+"=?";
     for (int i = 1; i < l.count()-1; ++i) {
         s = s + ","+l[i]+"=?";
     }
