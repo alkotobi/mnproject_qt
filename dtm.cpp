@@ -59,7 +59,7 @@ Dtm::~Dtm() {
 
 MnTable *Dtm::tblUser() {
     if (_tblUser == nullptr) {
-        _tblUser = new MnTable(connOptions(), main_users_def,"",{}, this);
+        _tblUser = new MnTable(connMain(), main_users_def,"",{}, this);
         if (!_tblUser->open()) {
             qDebug()<<  "CANT OPEN TABLE :" + main_users_def.table_name;
             throw MNException("CANT OPEN TABLE :" + main_users_def.table_name);
@@ -133,20 +133,20 @@ QString boolToStrInt(bool val){
 }
 
 void Dtm::regesterDb(const DbInfo &info) {
-    MnTable tbl(_connOptions,"select db_name from databases");
+    MnTable tbl(_connOptions,"select * from databases");
     if (!tbl.open()){
         qDebug()<< _connOptions->errorMessage();
         throw MNException(_connOptions->errorMessage());
     }
     tbl.append();
     tbl.setFieldValue(options_databases_db_name, info.dbName);
-//    tbl.setFieldValue(options_databases_is_active,boolToStrInt(info.isActive));
-//    tbl.setFieldValue(options_databases_is_server, boolToStrInt(info.isServer));
-//    tbl.setFieldValue(options_databases_provider,QString::number(info.provider));
-//    tbl.setFieldValue(options_databases_server, info.server);
-//    tbl.setFieldValue(options_databases_port, QString::number(info.port));
-//    tbl.setFieldValue(options_databases_user_name, info.userName);
-//    tbl.setFieldValue(options_databases_password, info.password);
+    tbl.setFieldValue(options_databases_is_active,boolToStrInt(info.isActive));
+    tbl.setFieldValue(options_databases_is_server, boolToStrInt(info.isServer));
+    tbl.setFieldValue(options_databases_provider,QString::number(info.provider));
+    tbl.setFieldValue(options_databases_server, info.server);
+    tbl.setFieldValue(options_databases_port, QString::number(info.port));
+    tbl.setFieldValue(options_databases_user_name, info.userName);
+    tbl.setFieldValue(options_databases_password, info.password);
     tbl.post();
 }
 

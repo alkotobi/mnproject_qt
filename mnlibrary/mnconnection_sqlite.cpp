@@ -251,7 +251,7 @@ QString mnconnection_sqlite::updateSql(const QString &tableName, const QString &
 {
     QStringList l = fields.split(',');
     QString s= "UPDATE "+tableName+" SET " + l[0]+"=?";
-    for (int i = 1; i < l.count()-1; ++i) {
+    for (int i = 1; i < l.count(); ++i) {
         s = s + ","+l[i]+"=?";
     }
     if (where != ""){
