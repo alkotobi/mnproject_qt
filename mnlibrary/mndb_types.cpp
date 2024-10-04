@@ -2,6 +2,7 @@
 #include "mnexception.h"
 #include <iostream>
 #include "mntable.h"
+#include <regex>
 
 
 QString dbTypesToString(DbTypes type) {
@@ -347,3 +348,7 @@ MnTableDef MnTableDef::init_from_db(MnTable *tbl_tables, MnTable *tbl_fields) {
     result.insert_params_count = result.fields.size();
     return result;
 }
+
+
+
+

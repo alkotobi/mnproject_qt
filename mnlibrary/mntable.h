@@ -38,7 +38,7 @@ typedef bool (*MnNotify)(QObject *);
 typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QString &newVal);
 private:
 
-    MNSql _sql;
+    MNSql sql_;
     MNQryState fState=stBrowse;
     QStringList fOldVals;
     bool fNotEdited = true;
@@ -59,7 +59,7 @@ private:
 
     bool _filtered = false;
 protected:
-    MnTableDef fTableDef={};
+    MnTableDef fTableDef_={};
 //int fRecordCount=-1;
 bool fActive=false;
     int row = -1;
@@ -116,7 +116,20 @@ public:
     bool findId(QString id);
     MnView filter(const std::function<bool()>& lambda_search);
     bool isEmpty();
+    MnFieldDef field(int col);
 
+    bool fieldsContains(const char *string);
+
+    void fieldsClear();
+
+    void fieldAppend(QStringList list);
+
+    void insertFieldsClear();
+
+    QString tableName();
+
+    QStringList fields();
+    QStringList insertFields();
 };
 
 #endif // MNQRY_H

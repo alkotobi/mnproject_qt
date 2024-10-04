@@ -445,6 +445,9 @@ bool mnconnection_postgres::execCreateTableSql(const MnTableDef &table) {
         QString sql = "CREATE TABLE IF NOT EXISTS " + table.table_name + " (id serial primary key,";
         for (int i = 0; i < table.fields.size(); ++i) {
             const MnFieldDef& field = table.fields[i];
+            if (field.field_name =="id"){
+                continue;
+            }
             QString fieldDefinition;
             switch (field.field_type) {
                 case INTEGER:

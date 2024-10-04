@@ -344,6 +344,9 @@ bool mnconnection_sqlite::execCreateTableSql(const MnTableDef &table) {
     sql += "id INTEGER PRIMARY KEY AUTOINCREMENT,";
     for (int i = 0; i < table.fields.size(); ++i) {
         const MnFieldDef& field = table.fields[i];
+        if (field.field_name =="id"){
+            continue;
+        }
         QString fieldDefinition;
         switch (field.field_type) {
             case INTEGER:

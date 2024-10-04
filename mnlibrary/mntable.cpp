@@ -15,9 +15,9 @@ bool MnTable::exec(const QString &sql, const QList<QVariant> &params) {
 
 
 MnTable::MnTable(mnconnection *conn, MnTableDef table,QString where , QList<QVariant> params, QObject *parent)
-        : QObject(parent), _sql(table.selectSql(),where) {
+        : QObject(parent), sql_(table.selectSql(),where) {
     this->conn = conn;
-    this->fTableDef = table;
+    this->fTableDef_ = table;
     this->fParams=params;
 }
 
@@ -40,8 +40,8 @@ bool MnTable::open(QList<QVariant> params) {
     QStringList fld = {};
     QStringList *fldPtr = &fld;
     QString s = sqlText();
-    if (_sql.fieldsContains("*")) {
-        _sql.fieldsClear();
+    if (fieldsContains("*")) {
+        fieldsClear();
     } else {
         fldPtr = nullptr;
     }
@@ -53,11 +53,11 @@ bool MnTable::open(QList<QVariant> params) {
         if (!fld.contains("id")) {
             fld.insert(0, "id");
         }
-        _sql.fieldAppend(fld);
-        _sql.insertFieldsClear();
+        fieldAppend(fld);
+        insertFieldsClear();
     }
-    if (fTableDef.table_name ==""){
-        fTableDef = conn->tableDef(_sql.tableName(), _sql.fields());
+    if (fTableDef_.table_name ==""){
+        fTableDef_ = conn->tableDef(tableName(), fields());
     }
 //    fRecordCount = (int) data()->count();
     if (ret) {
@@ -81,7 +81,7 @@ bool MnTable::append() {
     if (fState != stBrowse) post();
     fState = stInsert;
     QStringList l;
-    for (int i = 0; i < _sql.fields().count(); i++) {
+    for (int i = 0; i < fields().count(); i++) {
         l.append("");
     }
     data()->append(l);
@@ -97,16 +97,18 @@ bool MnTable::post() {
     if (!fNotEdited) {
         if ((*data())[row][0] == "") {
             //do insert
-            int id = this->conn->execInsertSql(_sql.tableName(), _sql.insertFields().join(","),
-                                               toVariants(_sql.insertFields()));
+            QStringList insFlds = insertFields();
+            int id = this->conn->execInsertSql(tableName(), insFlds.join(","),
+                                               toVariants(insFlds));
             setFieldValue(0, QString::number(id));
             res = id != -1;
 
         } else {
             //do update
+            QStringList insFlds = insertFields();
             res = this->conn->execUpdateSql(
-                    _sql.tableName(), _sql.insertFields().join(","), "id=" + (*data())[row][0],
-                    toVariants(_sql.insertFields()));
+                    tableName(), insFlds.join(","), "id=" + (*data())[row][0],
+                    toVariants(insFlds));
         }
         fNotEdited = true;
     }
@@ -186,7 +188,7 @@ void MnTable::setFieldValue(const QString &fieldName, const QString &val) {
 
 void MnTable::setFieldValue(int col, const QString &val) {
     if (fState == stBrowse) throw MNException("Dataset not in edit or insert mode");
-    if (col < 0 || col > _sql.fields().size()) throw MNException(QString::number(col) + "is not a correct field col");
+    if (col < 0 || col > fields().size()) throw MNException(QString::number(col) + "is not a correct field col");
     if ((*data())[this->row][col] == val) return;
     QString s = val;
     if (!doBeforeSetFieldVal(this, (*data())[this->row][col], s)) {
@@ -231,18 +233,18 @@ bool MnTable::first() {
 
 
 MnTable::MnTable(mnconnection *conn, QString sql, QList<QVariant> params,QObject *parent)
-        : QObject(parent), _sql(sql) {
+        : QObject(parent), sql_(sql) {
     //fTableDef = conn->tableDef(_sql.tableName(), _sql.fields());
     this->conn = conn;
     this->fParams = params;
 }
 
 QString MnTable::sqlText() {
-    return _sql.text();
+    return sql_.text();
 }
 
 int MnTable::fieldIndex(const QString &fieldName)const {
-    return (int) _sql.fields().indexOf(fieldName);
+    return (int) sql_.fields().indexOf(fieldName);
 }
 
 void MnTable::printAll() {
@@ -255,7 +257,7 @@ void MnTable::printAll() {
 }
 
 void MnTable::printTableDef() {
-    fTableDef.print();
+    fTableDef_.print();
 
 }
 
@@ -270,10 +272,9 @@ QList<QVariant> MnTable::toVariants(const QStringList &fields) {
     QList<QVariant> params = {};
     for (const QString &fld: fields) {
         //auto f = tableDef.fieldByName(fld);
-        auto col = fTableDef.fieldIndex(fld);
-        auto f = fTableDef.fields[col];
+        auto col =fieldIndex(fld);//  _sql.fields().indexOf(fld);// fTableDef.fieldIndex(fld);
+        auto f =field(col);// fTableDef_.fields[col];
         switch (f.field_type) {
-
             case INTEGER:
                 if ((*data())[row][col] == "") {
                     params.append(QVariant());
@@ -354,7 +355,7 @@ bool MnTable::remove() {
         return false;
     bool ret = true;
     if ((*data())[row][0] != "") {
-        ret = conn->exec("DELETE FROM " + _sql.tableName() + " WHERE id=" + (*data())[row][0]);//TODO:possible sql injection
+        ret = conn->exec("DELETE FROM " + tableName() + " WHERE id=" + (*data())[row][0]);//TODO:possible sql injection
     }
     if (ret) {
         data()->removeAt(row);
@@ -400,7 +401,7 @@ bool MnTable::isOpen() const {
 }
 
 MnTableDef MnTable::tableDef() {
-    return fTableDef;
+    return fTableDef_;
 }
 
 bool MnTable::priorFirst() {
@@ -422,11 +423,11 @@ void MnTable::setFiltered(bool f) {
 void MnTable::mntableCopy(MnTable *des,const MnTable &other) {
     if (des != &other) {
         des->_data = *(other.data());
-        des->fTableDef = other.fTableDef;
+        des->fTableDef_ = other.fTableDef_;
         des->fActive = other.fActive;
         des->row = other.row;
         des->conn = other.conn;
-        des->_sql = other._sql;
+        des->sql_ = other.sql_;
         des->fState =other.fState;
         des->fNotEdited = other.fNotEdited;
         des->fParams = other.fParams;
@@ -447,7 +448,7 @@ void MnTable::mntableCopy(MnTable *des,const MnTable &other) {
 
 
 MnTable::MnTable(const MnTable &other)
-:_sql(other._sql)
+:sql_(other.sql_)
 {
     mntableCopy(this,other);
 }
@@ -495,6 +496,38 @@ MnView MnTable::filter(const std::function<bool()> &lambda_search) {
 
 bool MnTable::isEmpty() {
     return data()->isEmpty();
+}
+
+MnFieldDef MnTable::field(int col) {
+    return fTableDef_.fields[col];
+}
+
+bool MnTable::fieldsContains(const char *string) {
+    return sql_.fields().contains(string);
+}
+
+void MnTable::fieldsClear() {
+    sql_.fieldsClear();
+}
+
+void MnTable::fieldAppend(QStringList list) {
+    sql_.fieldAppend(list);
+}
+
+void MnTable::insertFieldsClear() {
+    sql_.insertFieldsClear();
+}
+
+QString MnTable::tableName() {
+    return sql_.tableName();
+}
+
+QStringList MnTable::fields() {
+    return sql_.fields();
+}
+
+QStringList MnTable::insertFields() {
+    return sql_.insertFields();
 }
 
 
