@@ -582,25 +582,25 @@ bool mnconnection_postgres::execUpdateTableSql(const MnTableDef &table) {
                 ret = ret && exec(addColumnSqlPostgres(fieldDef, table.table_name));
             }
         }
-        bool backuped = false;
-        for (int i = 0; i < existingFields.size(); ++i) {
-            bool found = false;
-            for (const auto& f : table.fields) {
-                if (existingFields[i] == f.field_name) {
-                    found = true;
-                    continue;
-                }
-            }
-            if (!found) {
-                if (!backuped) {
-                    QDateTime currentTime = QDateTime::currentDateTime();
-                    QString backupTableName = table.table_name + "_" + currentTime.toString("yyyyMMdd_hhmmss");
-                    tableBackup(table.table_name, backupTableName);
-                    backuped = true;
-                }
-                ret = ret && exec("ALTER TABLE " + table.table_name + " DROP COLUMN " + existingFields[i]);
-            }
-        }
+//        bool backuped = false;
+//        for (int i = 0; i < existingFields.size(); ++i) {
+//            bool found = false;
+//            for (const auto& f : table.fields) {
+//                if (existingFields[i] == f.field_name) {
+//                    found = true;
+//                    continue;
+//                }
+//            }
+//            if (!found) {
+//                if (!backuped) {
+//                    QDateTime currentTime = QDateTime::currentDateTime();
+//                    QString backupTableName = table.table_name + "_" + currentTime.toString("yyyyMMdd_hhmmss");
+//                    tableBackup(table.table_name, backupTableName);
+//                    backuped = true;
+//                }
+//                ret = ret && exec("ALTER TABLE " + table.table_name + " DROP COLUMN " + existingFields[i]);
+//            }
+//        }
         if (ret) {
             return exec("COMMIT;");
         } else {

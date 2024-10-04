@@ -24,12 +24,14 @@ void FrmLogin::on_btnCancel_clicked()
 
 void FrmLogin::on_btnLogin_clicked()
 {
+
     if(dtm->tblUser()->find(main_users_name,ui->edtName->text())){
         if(dtm->tblUser()->fieldByName(main_users_pass) == ui->edtPass->text()){
           done(1);
             return;
         }
     }
+    //done(0);
     return;
 
 

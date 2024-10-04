@@ -120,7 +120,7 @@ void Dtm::creatLocalDb(const char *string) {
         qDebug()<<  "CANT INSERT :admin in " + main_groups_def.table_name+"\n"+conn.errorMessage();
         throw MNException("CANT INSERT :admin in " + main_groups_def.table_name+"\n"+conn.errorMessage());
     }
-    if(conn.execInsertSql(main_users_def.table_name,main_users_name+","+main_users_pass,{"admin","admin"})==-1){
+    if(conn.execInsertSql(main_users_def.table_name,main_users_name+","+main_users_pass+","+main_users_id_group,{"admin","admin","1"})==-1){
         qDebug()<< "CANT INSERT :admin,admin in " + main_users_def.table_name+"\n"+conn.errorMessage();
         throw MNException("CANT INSERT :admin,admin in " + main_users_def.table_name+"\n"+conn.errorMessage());
     }
@@ -168,8 +168,8 @@ void Dtm::activateDb(const QString &name) {
 DbInfo fillDbInfo(const MnTable& tbl){
     DbInfo result;
     result.dbName = tbl.fieldByName(options_databases_db_name);
-    result.isActive = true;
-    result.isServer = tbl.fieldByName(options_databases_is_active) == "1";
+    result.isActive = tbl.fieldByName(options_databases_is_active)=="1";
+    result.isServer = tbl.fieldByName(options_databases_is_server) == "1";
     result.password = tbl.fieldByName(options_databases_password);
     result.port = tbl.fieldByName(options_databases_port).toInt();
     result.server = tbl.fieldByName(options_databases_server);
@@ -193,10 +193,10 @@ DbInfo Dtm::dbInfo(QString name){
 }
 
 DbInfo Dtm::activeDbName() {
-    MnTable tbl(_connOptions,options_databases_def,options_databases_is_active+"=?",{"1"});
+    MnTable tbl(connOptions(),options_databases_def,options_databases_is_active+"=?",{"1"});
     if (!tbl.open()){
-        QMessageBox::critical(nullptr, "Error", _connOptions->errorMessage());
-        throw MNException(_connOptions->errorMessage());
+        QMessageBox::critical(nullptr, "Error", connOptions()->errorMessage());
+        throw MNException(connOptions()->errorMessage());
     }
     if (tbl.isEmpty()){
         QMessageBox::critical(nullptr, "Error", "no active db");
