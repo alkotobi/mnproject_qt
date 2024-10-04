@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
- a.setStyleSheet(cssSysNet);
+ a.setStyleSheet(cssDevision);
     Dtm _dtm;
     dtm = &_dtm;
     FrmLogin frmLogin;

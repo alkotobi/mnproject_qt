@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/svg">
         <file>svg/log-in.svg</file>
+        <file>svg/Cancel_04_64.svg</file>
     </qresource>
 </RCC>

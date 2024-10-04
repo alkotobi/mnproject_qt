@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>LOGIN</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -53,7 +53,11 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="edtPass"/>
+      <widget class="QLineEdit" name="edtPass">
+       <property name="echoMode">
+        <enum>QLineEdit::EchoMode::Password</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -77,6 +81,16 @@
        <property name="text">
         <string>ANNULER</string>
        </property>
+       <property name="icon">
+        <iconset resource="resources.qrc">
+         <normaloff>:/svg/svg/Cancel_04_64.svg</normaloff>:/svg/svg/Cancel_04_64.svg</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -88,6 +102,12 @@
         <iconset resource="resources.qrc">
          <normaloff>:/svg/svg/log-in.svg</normaloff>:/svg/svg/log-in.svg</iconset>
        </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
       </widget>
      </item>
     </layout>
@@ -97,5 +117,38 @@
  <resources>
   <include location="resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>edtName</sender>
+   <signal>returnPressed()</signal>
+   <receiver>btnLogin</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>233</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>edtPass</sender>
+   <signal>returnPressed()</signal>
+   <receiver>btnLogin</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>233</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

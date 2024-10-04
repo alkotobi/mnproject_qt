@@ -36,7 +36,7 @@ void FrmLogin::on_btnLogin_clicked()
     ui->edtPass->setStyleSheet(" border: 2px solid red");
     ui->lblName->setText("❌ "+ui->lblName->text());
     ui->lblPass->setText("❌ "+ui->lblPass->text());
-    app->setStyleSheet(cssGlobal);
+    //app->setStyleSheet(cssGlobal);
     return;
 
 
