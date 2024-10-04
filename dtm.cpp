@@ -99,6 +99,10 @@ mnconnection *Dtm::connMain() {
             qDebug()<<  "CANT connect to db  :" +dbInfo.dbName+" " +_connMain->errorMessage();
             throw MNException("CANT connect to db  :" +dbInfo.dbName+" " +_connMain->errorMessage());
         }
+        for (auto & tbl:main_def.tables) {
+            _connMain->execUpdateTableSql(tbl);
+        }
+
     }
 
     return _connMain;

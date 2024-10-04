@@ -5,12 +5,13 @@
 #include <QTranslator>
 #include "frmlogin.h"
 #include "dtm.h"
+#include "css.h"
 
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    app = &a;
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -20,6 +21,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+ a.setStyleSheet(cssSysNet);
     Dtm _dtm;
     dtm = &_dtm;
     FrmLogin frmLogin;

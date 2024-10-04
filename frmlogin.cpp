@@ -2,6 +2,7 @@
 #include "ui_frmlogin.h"
 #include "dtm.h"
 #include "db_design.h"
+#include "css.h"
 
 FrmLogin::FrmLogin(QWidget *parent)
     : QDialog(parent)
@@ -31,7 +32,11 @@ void FrmLogin::on_btnLogin_clicked()
             return;
         }
     }
-    //done(0);
+    ui->edtName->setStyleSheet(" border: 2px solid red");
+    ui->edtPass->setStyleSheet(" border: 2px solid red");
+    ui->lblName->setText("❌ "+ui->lblName->text());
+    ui->lblPass->setText("❌ "+ui->lblPass->text());
+    app->setStyleSheet(cssGlobal);
     return;
 
 
