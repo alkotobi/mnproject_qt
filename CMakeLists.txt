@@ -10,8 +10,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(Qt6_DIR "/Users/mac/Qt/6.7.2/macos/lib/cmake/Qt6")
 set(CMAKE_PREFIX_PATH "/Users/mac/Qt/6.7.2/macos/lib/cmake/")
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets Xml)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets Xml)
 
 
 
@@ -55,6 +55,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
             main.cpp
+            resources.qrc
 
 
     )
@@ -77,7 +78,9 @@ endif()
 
 
 qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-target_link_libraries(mnproject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::SvgWidgets)
+target_link_libraries(mnproject PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::SvgWidgets
+        Qt${QT_VERSION_MAJOR}::Xml)
 target_include_directories(mnproject PRIVATE /Library/PostgreSQL/16/include)
 target_link_libraries(mnproject PRIVATE -L/Library/PostgreSQL/16/lib)
 target_link_libraries(mnproject PRIVATE libpq.a)

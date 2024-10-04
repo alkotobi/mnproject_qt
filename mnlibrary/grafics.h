@@ -7,3 +7,5 @@
 #include <QtSvgWidgets/QSvgWidget>
 
 QSvgWidget *createSvgWidget(const QString& svgCode, QWidget *parent= nullptr);
+QByteArray modifySVGStrokeColor(const QString& svgFilePath, const QString& newColor);
+QIcon iconFromSvg(const QString& svgFilePath, const QString& newColor);

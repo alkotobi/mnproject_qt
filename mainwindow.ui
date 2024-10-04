@@ -26,6 +26,10 @@
     <property name="text">
      <string>connect sqlite</string>
     </property>
+    <property name="icon">
+     <iconset resource="resources.qrc">
+      <normaloff>:/svg/svg/log-in.svg</normaloff>:/svg/svg/log-in.svg</iconset>
+    </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
@@ -89,6 +93,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
