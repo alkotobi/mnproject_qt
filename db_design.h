@@ -97,7 +97,7 @@ static const struct MnFieldDef main_groups_can_del_db_def = {
 };
 static const MnTableDef main_groups_def ={
         .table_name = "groups",
-        .fields={main_groups_name_def,main_groups_can_login_def,main_groups_can_create_db_def,main_groups_can_edit_db_def,main_groups_can_del_db_def,},
+        .fields={mnfieldId,main_groups_name_def,main_groups_can_login_def,main_groups_can_create_db_def,main_groups_can_edit_db_def,main_groups_can_del_db_def,},
         .default_data = "[",
         .description = "",
         .insert_params_count =0,
@@ -182,7 +182,7 @@ static const struct MnFieldDef main_users_active_def = {
 };
 static const MnTableDef main_users_def ={
         .table_name = "users",
-        .fields={main_users_name_def,main_users_pass_def,main_users_id_group_def,main_users_active_def,},
+        .fields={mnfieldId,main_users_name_def,main_users_pass_def,main_users_id_group_def,main_users_active_def,},
         .default_data = "[",
         .description = "",
         .insert_params_count =0,
@@ -249,7 +249,7 @@ static const struct MnFieldDef main_db_info_name_user_create_def = {
 };
 static const MnTableDef main_db_info_def ={
         .table_name = "db_info",
-        .fields={main_db_info_date_creation_def,main_db_info_id_user_create_def,main_db_info_name_user_create_def,},
+        .fields={mnfieldId,main_db_info_date_creation_def,main_db_info_id_user_create_def,main_db_info_name_user_create_def,},
         .default_data = "",
         .description = "",
         .insert_params_count =0,
@@ -280,7 +280,7 @@ static const struct MnFieldDef main_unite_name_def = {
 };
 static const MnTableDef main_unite_def ={
         .table_name = "unite",
-        .fields={main_unite_name_def,},
+        .fields={mnfieldId,main_unite_name_def,},
         .default_data = "",
         .description = "",
         .insert_params_count =0,
@@ -444,7 +444,7 @@ static const struct MnFieldDef options_databases_provider_def = {
 };
 static const MnTableDef options_databases_def ={
         .table_name = "databases",
-        .fields={options_databases_db_name_def,options_databases_is_server_def,options_databases_user_name_def,options_databases_password_def,options_databases_port_def,options_databases_is_active_def,options_databases_server_def,options_databases_provider_def,},
+        .fields={mnfieldId,options_databases_db_name_def,options_databases_is_server_def,options_databases_user_name_def,options_databases_password_def,options_databases_port_def,options_databases_is_active_def,options_databases_server_def,options_databases_provider_def,},
         .default_data = "",
         .description = "",
         .insert_params_count =0,

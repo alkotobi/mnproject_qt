@@ -105,7 +105,7 @@ void MainWindow::on_pushButton_clicked() {
             }
             QString t = "static const MnTableDef "+name_space+"def ={\n"
                                                                                       "        .table_name = \""+tbls.fieldByName("table_name")+"\",\n"
-                                                           "        .fields={"+fld_defs+"},\n"
+                                                           "        .fields={mnfieldId,"+fld_defs+"},\n"
                                      "        .default_data = \""+tbls.fieldByName("default_data")+"\",\n"
                                                              "        .description = \""+tbls.fieldByName("description")+"\",\n"
                                                             "        .insert_params_count ="+emptyStrTo0str(tbls.fieldByName("description"))+",\n"
