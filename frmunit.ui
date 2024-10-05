@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FrmUnit</class>
+ <widget class="QWidget" name="FrmUnit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="MnTableView" name="tableView"/>
+   </item>
+   <item>
+    <widget class="FrmDbNav" name="dbNav" native="true"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MnTableView</class>
+   <extends>QTableView</extends>
+   <header>mntableview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FrmDbNav</class>
+   <extends>QWidget</extends>
+   <header>frmdbnav.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

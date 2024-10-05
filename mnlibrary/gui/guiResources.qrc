@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/svg">
+        <file>svg/first_page_48px.svg</file>
+        <file>svg/navigate_next_48px.svg</file>
+        <file>svg/navigate_before_48px.svg</file>
+        <file>svg/last_page_48px.svg</file>
+        <file>svg/file_save_grad200_48px.svg</file>
+        <file>svg/delete_48px.svg</file>
+        <file>svg/cancel_grad200_48px.svg</file>
+        <file>svg/refresh_48px.svg</file>
+        <file>svg/lock_48px.svg</file>
+        <file>svg/lock_open_gradN25_48px.svg</file>
+    </qresource>
+</RCC>

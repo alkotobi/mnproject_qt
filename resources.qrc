@@ -2,5 +2,6 @@
     <qresource prefix="/svg">
         <file>svg/log-in.svg</file>
         <file>svg/Cancel_04_64.svg</file>
+        <file>svg/ruler-svgrepo-com.svg</file>
     </qresource>
 </RCC>

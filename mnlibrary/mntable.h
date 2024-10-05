@@ -9,7 +9,7 @@
 #include "mndb_types.h"
 
 class MnView;
-typedef enum {stEdit,stInsert,stBrowse} MNQryState;
+typedef enum {stEdit,stInsert,stBrowse} MnTablrState;
 struct MnDataSetCol {
 private:
     bool _filtered = false;
@@ -39,7 +39,7 @@ typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QStrin
 private:
 
     MNSql sql_;
-    MNQryState fState=stBrowse;
+    MnTablrState fState=stBrowse;
     QStringList fOldVals;
     bool fNotEdited = true;
     QList<QVariant> fParams;
@@ -130,6 +130,9 @@ public:
 
     QStringList fields();
     QStringList insertFields();
+    MnTablrState state();
+
+    void refresh();
 };
 
 #endif // MNQRY_H

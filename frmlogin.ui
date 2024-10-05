@@ -43,6 +43,9 @@
        <property name="styleSheet">
         <string notr="true"/>
        </property>
+       <property name="text">
+        <string>admin</string>
+       </property>
       </widget>
      </item>
      <item row="1" column="0">
@@ -54,6 +57,9 @@
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="edtPass">
+       <property name="text">
+        <string>admin</string>
+       </property>
        <property name="echoMode">
         <enum>QLineEdit::EchoMode::Password</enum>
        </property>
@@ -95,6 +101,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnLogin">
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>ENTRER</string>
        </property>

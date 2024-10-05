@@ -6,6 +6,8 @@
 #pragma once
 #include <QtSvgWidgets/QSvgWidget>
 
+inline QString colorIcon = "green";
 QSvgWidget *createSvgWidget(const QString& svgCode, QWidget *parent= nullptr);
 QByteArray modifySVGStrokeColor(const QString& svgFilePath, const QString& newColor);
 QIcon iconFromSvg(const QString& svgFilePath, const QString& newColor);
+QIcon iconFromSvgCode(const QString& svgCode, const QString& newColor);

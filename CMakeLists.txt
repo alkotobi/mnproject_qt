@@ -13,7 +13,7 @@ set(CMAKE_PREFIX_PATH "/Users/mac/Qt/6.7.2/macos/lib/cmake/")
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets Xml)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools SvgWidgets Xml)
 
-
+include_directories("./" "./mnlibrary" "./mnlibrary/gui" )
 
 set(PROJECT_SOURCES
         mainwindow.cpp
@@ -47,7 +47,10 @@ set(PROJECT_SOURCES
         css.h
         mnlibrary/grafics.cpp
         mnlibrary/grafics.h
-
+        frmunit.h frmunit.cpp frmunit.ui
+        mnlibrary/mntablemodel.h mnlibrary/mntablemodel.cpp
+        mnlibrary/gui/mntableview.h mnlibrary/gui/mntableview.cpp
+        mnlibrary/gui/frmdbnav.h mnlibrary/gui/frmdbnav.cpp mnlibrary/gui/frmdbnav.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -56,6 +59,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
             ${PROJECT_SOURCES}
             main.cpp
             resources.qrc
+
+            mnlibrary/gui/guiResources.qrc
 
 
     )

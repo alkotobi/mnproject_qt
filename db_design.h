@@ -256,10 +256,41 @@ static const MnTableDef main_db_info_def ={
         .is_view=false,
         .create_sql = "",
 };
+ //-------------------------------------------------------------------
+//--------------------------------unite--------------------------
+//-------------------------------------------------------------------
+static QString main_unite_table_name="unite";
+static QString main_unite_name="name";
+static const struct MnFieldDef main_unite_name_def = {
+.field_name = "name",
+.field_type = VARCHAR,
+.field_length = 255,
+.is_unique = false,
+.is_not_null = false,
+.is_indexed = false,
+.default_value = "",
+.description = "",
+.is_required = false,
+.is_visible = true,
+.is_read_only = false,
+.display_width = 20,
+.display_label = "UNITE",
+.is_calculated = false,
+.ind = 21
+};
+static const MnTableDef main_unite_def ={
+        .table_name = "unite",
+        .fields={main_unite_name_def,},
+        .default_data = "",
+        .description = "",
+        .insert_params_count =0,
+        .is_view=false,
+        .create_sql = "",
+};
  static const MnDatabaseDef main_def ={
    .database_name="main",
    .db_path="",
-   .tables={main_groups_def,main_users_def,main_db_info_def},
+   .tables={main_groups_def,main_users_def,main_db_info_def,main_unite_def},
    .version=1.0,
    .description=""
 };

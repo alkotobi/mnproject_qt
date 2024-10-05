@@ -21,12 +21,13 @@ int main(int argc, char *argv[])
             break;
         }
     }
- a.setStyleSheet(cssDevision);
+ a.setStyleSheet(cssGlobal);
     Dtm _dtm;
     dtm = &_dtm;
     FrmLogin frmLogin;
     if(frmLogin.exec()){
         MainWindow w;
+        mainWin = &w;
         w.show();
         return a.exec();
     }

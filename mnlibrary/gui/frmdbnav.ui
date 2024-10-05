@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FrmDbNav</class>
+ <widget class="QWidget" name="FrmDbNav">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>458</width>
+    <height>32</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QPushButton" name="btnFirst">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/first_page_48px.svg</normaloff>:/svg/svg/first_page_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnPrior">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/navigate_before_48px.svg</normaloff>:/svg/svg/navigate_before_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnNext">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/navigate_next_48px.svg</normaloff>:/svg/svg/navigate_next_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnLast">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/last_page_48px.svg</normaloff>:/svg/svg/last_page_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnCancel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/cancel_grad200_48px.svg</normaloff>:/svg/svg/cancel_grad200_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnDelete">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/delete_48px.svg</normaloff>:/svg/svg/delete_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnSave">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/file_save_grad200_48px.svg</normaloff>:/svg/svg/file_save_grad200_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnRefresh">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;RAFRICHIR LES INFORMATIONS&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Les information sera telecharge&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/refresh_48px.svg</normaloff>:/svg/svg/refresh_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnLock">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;VEROUILLER LES INFORMATIONS&lt;/span&gt;&lt;br/&gt;Ne peut modifier les informations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="guiResources.qrc">
+       <normaloff>:/svg/svg/lock_48px.svg</normaloff>:/svg/svg/lock_48px.svg</iconset>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="guiResources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -3,12 +3,15 @@
 #include "dtm.h"
 #include "db_design.h"
 #include "css.h"
+#include "mnlibrary/grafics.h"
 
 FrmLogin::FrmLogin(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::FrmLogin)
 {
     ui->setupUi(this);
+    ui->btnCancel->setIcon(iconFromSvgCode(svgCancelCode,"#e74c3c"));
+    ui->btnCancel->setIconSize(QSize(20,20));
 }
 
 FrmLogin::~FrmLogin()

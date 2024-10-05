@@ -13,74 +13,7 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>270</y>
-      <width>100</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>connect sqlite</string>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/svg/svg/log-in.svg</normaloff>:/svg/svg/log-in.svg</iconset>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>270</y>
-      <width>100</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>connect postgres</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>80</y>
-      <width>321</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="assign_function_to_signal">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
-      <y>270</y>
-      <width>201</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>connect postgres</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_3">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>260</y>
-      <width>100</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>MnDatabase</string>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -90,8 +23,30 @@
      <height>33</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFICHIER">
+    <property name="title">
+     <string>FICHIER</string>
+    </property>
+    <addaction name="actUnit"/>
+   </widget>
+   <addaction name="menuFICHIER"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actUnit">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/svg/svg/ruler-svgrepo-com.svg</normaloff>:/svg/svg/ruler-svgrepo-com.svg</iconset>
+   </property>
+   <property name="text">
+    <string>UNITE</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+U</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

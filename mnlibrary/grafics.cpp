@@ -64,3 +64,23 @@ QIcon iconFromSvg(const QString& svgFilePath, const QString& newColor) {
     }
     return QIcon();
 }
+
+QIcon iconFromSvgCode(const QString& svgCode, const QString& newColor) {
+    QString s = svgCode;
+    QRegularExpression re("stroke=\"([^\"]*)\"");
+    QRegularExpressionMatchIterator it = re.globalMatch(s);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        if (match.hasMatch()) {
+            s.replace(match.captured(0), QString("stroke=\"%1\"").arg(newColor));
+        }
+    }
+
+    QSvgRenderer renderer(s.toUtf8());
+    QPixmap pixmap(32, 32);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    renderer.render(&painter);
+
+    return QIcon(pixmap);
+}

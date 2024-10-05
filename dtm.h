@@ -4,6 +4,7 @@
 #include "db_design.h"
 #include "mnlibrary/mntable.h"
 #include <QObject>
+#include "mainwindow.h"
 
 struct DbInfo{
     QString dbName="";
@@ -48,4 +49,5 @@ public:
 };
 
 inline Dtm *dtm;
+inline MainWindow *mainWin = nullptr;
 #endif // DTM_H

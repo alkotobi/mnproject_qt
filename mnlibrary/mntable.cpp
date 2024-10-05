@@ -530,6 +530,17 @@ QStringList MnTable::insertFields() {
     return sql_.insertFields();
 }
 
+MnTablrState MnTable::state() {
+    return fState;
+}
+
+void MnTable::refresh() {
+    int r = row;
+    this->close();
+    this->open();
+    this->row = r;
+}
+
 
 //-------------------
 const QString &MnDataSetCol::value() const {

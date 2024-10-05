@@ -6,6 +6,7 @@ extern "C" {
 }
 #include "mnlibrary/mnconnection_sqlite.h"
 #include "mnlibrary/mnconnection_postgres.h"
+#include "frmunit.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -156,8 +157,7 @@ void edited()
 
 void MainWindow::on_assign_function_to_signal_clicked()
 {
-    connect(this->ui->lineEdit, &QLineEdit::editingFinished, &MainWindow::edited);
-    connect(this->ui->lineEdit, &QLineEdit::editingFinished, &MainWindow::edited2);
+
 }
 
 
@@ -166,5 +166,11 @@ void MainWindow::on_pushButton_3_clicked()
 //     db_options_design_def =MnDatabaseDef(db_options_design_json);
 //    MnTableDef tbl = db_options_design_def.table_by_name(databases_table_name);
 //    QString tblName = tbl.table_name;
+}
+
+
+void MainWindow::on_actUnit_triggered()
+{
+    frmUnite()->exec();
 }
 
