@@ -73,6 +73,9 @@ void MnTable::edit() {
     if (data()->isEmpty()) throw MNException("cant edit an empty dataset");
     fOldVals = (*data())[row];
     fState = stEdit;
+    for (auto& ntf:onStartEditNtfs) {
+        ntf.ntf(this,ntf.receiver);
+    }
 }
 
 bool MnTable::append() {
@@ -147,14 +150,14 @@ bool MnTable::goTo(int ind) {
 bool MnTable::execBeforeScroll() {
     bool ret = true;
     for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
-        ret = ret && beforeScrollNtfs[i](this);
+        ret = ret && beforeScrollNtfs[i].ntf(this,beforeScrollNtfs[i].receiver);
     }
     return ret;
 }
 
 void MnTable::execAfterScroll() {
     for (int i = 0; i < beforeScrollNtfs.count(); ++i) {
-        afterScrollNtfs[i](this);
+        beforeScrollNtfs[i].ntf(this,beforeScrollNtfs[i].receiver);
     }
 }
 
@@ -195,6 +198,20 @@ void MnTable::setFieldValue(int col, const QString &val) {
         return;
     }
     (*data())[this->row][col] = s;
+    fNotEdited = false;
+}
+
+void MnTable::setFieldValue(int row, int col, const QString &val)
+{
+    if (fState == stBrowse) throw MNException("Dataset not in edit or insert mode");
+    if (col < 0 || col >= fields().size()) throw MNException(QString::number(col) + "is not a correct field col");
+    if (row < 0 || row >= _data.size()) throw MNException(QString::number(row) + "is not a correct field row ");
+    if ((*data())[row][col] == val) return;
+    QString s = val;
+    if (!doBeforeSetFieldVal(this, (*data())[row][col], s)) {
+        return;
+    }
+    (*data())[row][col] = s;
     fNotEdited = false;
 }
 
@@ -318,6 +335,11 @@ QStringList MnTable::rowAt(int row) {
     return (*data())[row];
 }
 
+QString MnTable::valueAt(int row, int col)
+{
+    return _data[row][col];
+}
+
 int MnTable::rowNo() {
     return row;
 }
@@ -371,28 +393,28 @@ bool MnTable::remove() {
 bool MnTable::execBeforeRemove() {
     bool ret = true;
     for (auto proc: beforeRemoveNtfs) {
-        ret = ret && proc(this);
+        ret = ret && proc.ntf(this,proc.receiver);
     }
     return ret;
 }
 
 void MnTable::execAfterRemove() {
     for (auto proc: afterRemoveNtfs) {
-        proc(this);
+        proc.ntf(this,proc.receiver);
     }
 }
 
 bool MnTable::execBeforePost() {
     bool ret = true;
     for (auto proc: beforePostNtfs) {
-        ret = ret && proc(this);
+        ret = ret && proc.ntf(this,proc.receiver);;
     }
     return ret;
 }
 
 void MnTable::execAfterPost() {
     for (auto proc: afterPostNtfs) {
-        proc(this);
+        proc.ntf(this,proc.receiver);;
     }
 }
 
@@ -541,28 +563,21 @@ void MnTable::refresh() {
     this->row = r;
 }
 
-
-//-------------------
-const QString &MnDataSetCol::value() const {
-    return _value;
+void MnTable::addOnStartEditNtf(MnNoTifyInfo ntf) {
+    for (auto& _ntf:onStartEditNtfs) {
+        if(_ntf.receiver == ntf.receiver && _ntf.ntf ==ntf.ntf){
+            return;
+        }
+    }
+        onStartEditNtfs.append(ntf);
 }
 
-void MnDataSetCol::setValue(const QString &value) {
-    _value = value;
+void MnTable::removeOnStartEditNtf(MnNoTifyInfo ntf) {
+    for (int i = 0; i <onStartEditNtfs.size() ; ++i) {
+        if (onStartEditNtfs[i].ntf == ntf.ntf && onStartEditNtfs[i].receiver == ntf.receiver){
+            onStartEditNtfs.remove(i);
+            return;
+        }
+    }
 }
 
-bool MnDataSetCol::isEdited() const {
-    return _edited;
-}
-
-void MnDataSetCol::setEdited(bool edited) {
-    _edited = edited;
-}
-
-bool MnDataSetCol::isFiltered() const {
-    return _filtered;
-}
-
-void MnDataSetCol::setFiltered(bool filtered) {
-    _filtered = filtered;
-}

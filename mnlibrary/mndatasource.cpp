@@ -21,7 +21,7 @@ void MnDataSource::updateControls()
 {
     for (int i = 0; i < controls.count(); ++i) {
         QString str = (this->_qry->fieldByName(controls[i]->fieldName()));
-        controls[i]->setDbText(str);
+        controls[i]->setText(str);
     }
 }
 
@@ -30,7 +30,7 @@ void MnDataSource::updateControls(const QString &fieldName)
     for (int i = 0; i < controls.count(); ++i) {
         if(controls[i]->fieldName()!=fieldName) continue;
         QString str = (this->_qry->fieldByName(controls[i]->fieldName()));
-        controls[i]->setDbText(str);
+        controls[i]->setText(str);
     }
 }
 

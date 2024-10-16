@@ -143,7 +143,7 @@ CREATE TABLE nour (
         qry.post();
     }
     ret = ret && qry.recordCount() == 10;
-    test(ret, "add 10 records");
+    test(ret, "addDbCtrl 10 records");
     std::cout << "-------------------------\n";
 
     if (qry.priorFirst())
@@ -277,7 +277,7 @@ bool testPostgresWithDef(){
         qry.post();
     }
     ret = ret && qry.recordCount() == 10;
-    test(ret, "add 10 records");
+    test(ret, "addDbCtrl 10 records");
     std::cout << "-------------------------\n";
 
     if (qry.priorFirst())
@@ -411,7 +411,7 @@ bool testLiteWithDef(){
         qry.post();
     }
     ret = ret && qry.recordCount() == 10;
-    test(ret, "add 10 records");
+    test(ret, "addDbCtrl 10 records");
     std::cout << "-------------------------\n";
 
     if (qry.priorFirst())
@@ -537,7 +537,7 @@ CREATE TABLE nour (
         qry.post();
     }
     ret = ret && qry.recordCount() == 10;
-    test(ret, "add 10 records");
+    test(ret, "addDbCtrl 10 records");
     std::cout << "-------------------------\n";
 
     if (qry.priorFirst())

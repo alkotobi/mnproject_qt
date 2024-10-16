@@ -12577,7 +12577,7 @@ struct Fts5ExtensionApi {
 **
 **   <ul><li> <b>FTS5_TOKENIZE_DOCUMENT</b> - A document is being inserted into
 **            or removed from the FTS table. The tokenizer is being invoked to
-**            determine the set of tokens to add to (or delete from) the
+**            determine the set of tokens to addDbCtrl to (or delete from) the
 **            FTS index.
 **
 **       <li> <b>FTS5_TOKENIZE_QUERY</b> - A MATCH query is being executed
@@ -12693,7 +12693,7 @@ struct Fts5ExtensionApi {
 **   There is no limit to the number of synonyms that may be provided for a
 **   single token.
 **
-**   In many cases, method (1) above is the best approach. It does not add
+**   In many cases, method (1) above is the best approach. It does not addDbCtrl
 **   extra data to the FTS index or require FTS5 to query for multiple terms,
 **   so it is efficient in terms of disk space and query speed. However, it
 **   does not support prefix queries very well. If, as suggested above, the

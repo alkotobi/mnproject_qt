@@ -1,18 +1,26 @@
 #include "mncustomdbctrl.h"
+#include "mnmapper.h"
 
-MnCustomDbCtrl::MnCustomDbCtrl() {}
-
-MnCustomDataSource *MnCustomDbCtrl::dataSource()
+MnMapper *MnCustomDbCtrl::mapper() const
 {
-    return this->_dataSource;
+    return _mapper;
 }
 
-void MnCustomDbCtrl::setDatasource(MnCustomDataSource *dataSource)
+void MnCustomDbCtrl::setMapper(MnMapper *newMapper)
 {
-    if(this->_dataSource) _dataSource->removeControle(this);
-    this->_dataSource = dataSource;
-    _dataSource->addControle(this);
+    if(_mapper == newMapper){
+        return;
+    }
+    if(_mapper){
+        _mapper->removeDbCtrl(this);
+    }
+    _mapper = newMapper;
+    _mapper->addDbCtrl(this);
 }
+
+MnCustomDbCtrl::MnCustomDbCtrl(QWidget *parent): QWidget(parent) {}
+
+
 
 QString MnCustomDbCtrl::fieldName()
 {

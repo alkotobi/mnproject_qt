@@ -10,32 +10,16 @@
 
 class MnView;
 typedef enum {stEdit,stInsert,stBrowse} MnTablrState;
-struct MnDataSetCol {
-private:
-    bool _filtered = false;
-    bool _edited = false;
-    QString _value;
-public:
-    const QString &value() const;
-
-    void setValue(const QString &value);
-
-    bool isEdited() const;
-
-    void setEdited(bool edited);
-
-    bool isFiltered() const;
-
-    void setFiltered(bool filtered);
-
-public:
+typedef bool (*MnNotify)(QObject *,void*);//(sender,receiver)
+typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QString &newVal);
+struct MnNoTifyInfo{
+    MnNotify ntf;
+    void *receiver;
 };
-typedef QList<MnDataSetCol> MnDataSet;
 
 class MnTable: public QObject{
 Q_OBJECT
-typedef bool (*MnNotify)(QObject *);
-typedef  bool (*MnBeforeSetFieldVal)(MnTable *tbl, const QString &oldVal, QString &newVal);
+
 private:
 
     MNSql sql_;
@@ -43,12 +27,13 @@ private:
     QStringList fOldVals;
     bool fNotEdited = true;
     QList<QVariant> fParams;
-    QList<MnNotify> beforeScrollNtfs;
-    QList<MnNotify> afterScrollNtfs;
-    QList<MnNotify> beforeRemoveNtfs;
-    QList<MnNotify> afterRemoveNtfs;
-    QList<MnNotify> beforePostNtfs;
-    QList<MnNotify> afterPostNtfs;
+    QList<MnNoTifyInfo> beforeScrollNtfs;
+    QList<MnNoTifyInfo> afterScrollNtfs;
+    QList<MnNoTifyInfo> beforeRemoveNtfs;
+    QList<MnNoTifyInfo> afterRemoveNtfs;
+    QList<MnNoTifyInfo> beforePostNtfs;
+    QList<MnNoTifyInfo> afterPostNtfs;
+    QList<MnNoTifyInfo> onStartEditNtfs;
     QList<MnBeforeSetFieldVal> beforeSetFieldValProcs={};
     QList<MnCustomDataSource*> dataSources;
 
@@ -100,11 +85,13 @@ public:
     QString fieldByInd(const int index);
     void setFieldValue(const QString& fieldName, const QString &val);
     void setFieldValue(int col, const QString &val);
+    void setFieldValue(int row,int col, const QString &val);
     int fieldIndex(const QString& fieldName) const;
     void printCurrent();
     void printAll();
     void printTableDef();
     QStringList rowAt(int row);
+    QString valueAt(int row,int col);
     int rowNo();
     bool isOpen() const;
     MnTableDef tableDef();
@@ -133,6 +120,8 @@ public:
     MnTablrState state();
 
     void refresh();
+    void addOnStartEditNtf(MnNoTifyInfo ntf);
+    void removeOnStartEditNtf(MnNoTifyInfo ntf);
 };
 
 #endif // MNQRY_H

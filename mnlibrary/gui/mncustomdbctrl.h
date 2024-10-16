@@ -1,22 +1,23 @@
-#ifndef MNCUSTOMDBCTRL_H
-#define MNCUSTOMDBCTRL_H
+#pragma  once
 #include "../mncustomdatasource.h"
 #include <QString>
+#include <QWidget>
 
-class MnCustomDbCtrl
+class MnMapper;
+class MnCustomDbCtrl:public QWidget
 {
-    MnCustomDataSource *_dataSource=nullptr;
+private:
+    MnMapper *_mapper = nullptr;
     QString _fieldName="";
-public slots:
-    virtual void editFinished()=0;
+
 public:
-    MnCustomDbCtrl();
-    MnCustomDataSource *dataSource();
-    void setDatasource(MnCustomDataSource *dataSource);
+    MnCustomDbCtrl(QWidget *parent= nullptr);
     QString fieldName();
     void setFieldName(const QString& fieldName);
-    virtual void setDbText(const QString& text)=0;
-    virtual QString dbText()=0;
+    virtual void setText(const QString& text)=0;
+    virtual QString text()=0;
+    MnMapper *mapper() const;
+    void setMapper(MnMapper *newMapper);
 };
 
-#endif // MNCUSTOMDBCTRL_H
+

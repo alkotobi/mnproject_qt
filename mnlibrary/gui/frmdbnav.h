@@ -2,13 +2,13 @@
 #define FRMDBNAV_H
 
 #include <QWidget>
-#include "mntable.h"
-#include "mntableview.h"
+
+#include <QPushButton>
 
 namespace Ui {
 class FrmDbNav;
 }
-
+class MnMapper;
 class FrmDbNav : public QWidget
 {
     Q_OBJECT
@@ -16,14 +16,19 @@ class FrmDbNav : public QWidget
 public:
     explicit FrmDbNav(QWidget *parent = nullptr);
     ~FrmDbNav();
+    void updateBtns();
 
-
-
-    MnTable *table() const;
-    void setTable(MnTable *newTable);
-
-    MnTableView *tableView() const;
-    void setTableView(MnTableView *newTableView);
+    Ui::FrmDbNav *ui;
+    QPushButton *btnFirst();
+    QPushButton *btnNext();
+    QPushButton *btnPrior();
+    QPushButton *btnLast();
+    QPushButton *btnRefresh();
+    QPushButton *btnCancel();
+    QPushButton *btnDelete();
+    QPushButton *btnSave();
+    MnMapper *mapper() const;
+    void setMapper(MnMapper *newMapper);
 
 private slots:
     void on_btnFirst_clicked();
@@ -43,10 +48,7 @@ private slots:
     void on_btnRefresh_clicked();
 
 private:
-    Ui::FrmDbNav *ui;
-    void updateBtns();
-    MnTable * _table = nullptr;
-    MnTableView *_tableView = nullptr;
+   MnMapper *_mapper;
 };
 
 #endif // FRMDBNAV_H

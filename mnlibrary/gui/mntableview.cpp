@@ -1,6 +1,7 @@
 #include "mntableview.h"
 #include <QKeyEvent>
 
+
 MnTableView::MnTableView( QWidget *parent) :
     QTableView(parent)
 {

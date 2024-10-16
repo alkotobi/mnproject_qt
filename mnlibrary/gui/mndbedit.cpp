@@ -2,19 +2,14 @@
 
 MnDbEdit::MnDbEdit() {}
 
-void MnDbEdit::editFinished()
+
+void MnDbEdit::setText(const QString &text)
 {
-    dataSource()->updateQry(fieldName(),dbText());
+    QLineEdit::setText(text);
 }
 
-
-void MnDbEdit::setDbText(const QString &text)
+QString MnDbEdit::text()
 {
-    this->setText(text);
-}
-
-QString MnDbEdit::dbText()
-{
-    return this->text();
+    return QLineEdit::text();
 
 }

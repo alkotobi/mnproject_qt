@@ -20,5 +20,9 @@ signals:
 
 private:
     MnTable *mnTable;
+
+    bool removeRows(int row, int count, const QModelIndex &parent)override;
+
+    bool insertRows(int row, int count, const QModelIndex &parent)override;
 };
 

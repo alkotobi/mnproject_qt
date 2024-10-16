@@ -2,6 +2,8 @@
 #include "ui_frmdbnav.h"
 #include "grafics.h"
 #include <QMessageBox>
+#include "mnmapper.h"
+
 
 FrmDbNav::FrmDbNav(QWidget *parent)
     : QWidget(parent)
@@ -29,116 +31,125 @@ FrmDbNav::~FrmDbNav()
 
 void FrmDbNav::on_btnFirst_clicked()
 {
-    table()->first();
-    if(tableView()){
-        tableView()->setCurrentIndex(tableView()->model()->index(
-            0,
-            tableView()->currentIndex().column()
-            ));
-    }
-    updateBtns();
-}
 
+}
+bool $updateBtns(QObject* sender,void* receiver){
+    auto *frm = (FrmDbNav *)receiver;
+    QAbstractItemModel *currentModel = frm->mapper()->model();
+    frm->ui->btnSave->setEnabled(frm->mapper()->model()->table() && (frm->mapper()->model()->table()->state() == stEdit || frm->mapper()->model()->table()->state() == stInsert));
+    frm->ui->btnCancel->setEnabled(frm->ui->btnSave->isEnabled());
+    frm->ui->btnDelete->setEnabled(frm->mapper()->model()->table() && !frm->mapper()->model()->table()->isEmpty());
+    frm->ui->btnPrior->setEnabled(frm->mapper()->model()->table() && frm->mapper()->model()->table()->rowNo() != 0);
+    frm->ui->btnFirst->setEnabled(frm->ui->btnPrior->isEnabled());
+    frm->ui->btnNext->setEnabled(frm->mapper()->model()->table() && frm->mapper()->model()->table()->rowNo() != frm->mapper()->model()->table()->recordCount()-1);
+    frm->ui->btnLast->setEnabled(frm->ui->btnNext->isEnabled());
+    frm->ui->btnRefresh->setEnabled(!frm->ui->btnSave->isEnabled());
+    return true;
+}
 void FrmDbNav::updateBtns()
 {
-
-    ui->btnSave->setEnabled(table() && table()->state() == stEdit || table()->state() == stInsert);
-    ui->btnCancel->setEnabled(ui->btnSave->isEnabled());
-    ui->btnDelete->setEnabled(table() && !table()->isEmpty());
-    ui->btnPrior->setEnabled(table() && table()->rowNo() != 0);
-    ui->btnFirst->setEnabled(ui->btnPrior->isEnabled());
-    ui->btnNext->setEnabled(table() && table()->rowNo() != table()->recordCount()-1);
-    ui->btnLast->setEnabled(ui->btnNext->isEnabled());
-    ui->btnRefresh->setEnabled(!ui->btnSave->isEnabled());
+    $updateBtns(nullptr,this);
+//    ui->btnSave->setEnabled(table() && table()->state() == stEdit || table()->state() == stInsert);
+//    ui->btnCancel->setEnabled(ui->btnSave->isEnabled());
+//    ui->btnDelete->setEnabled(table() && !table()->isEmpty());
+//    ui->btnPrior->setEnabled(table() && table()->rowNo() != 0);
+//    ui->btnFirst->setEnabled(ui->btnPrior->isEnabled());
+//    ui->btnNext->setEnabled(table() && table()->rowNo() != table()->recordCount()-1);
+//    ui->btnLast->setEnabled(ui->btnNext->isEnabled());
+//    ui->btnRefresh->setEnabled(!ui->btnSave->isEnabled());
 }
 
-MnTableView *FrmDbNav::tableView() const
-{
-    return _tableView;
-}
 
-void FrmDbNav::setTableView(MnTableView *newTableView)
-{
-    _tableView = newTableView;
-}
 
-MnTable *FrmDbNav::table() const
-{
-    return _table;
-}
-
-void FrmDbNav::setTable(MnTable *newTable)
-{
-    _table = newTable;
-    updateBtns();
-}
 
 
 void FrmDbNav::on_btnPrior_clicked()
 {
-    table()->prior();
-    if(tableView()){
-        tableView()->setCurrentIndex(tableView()->model()->index(
-            tableView()->currentIndex().row()-1,
-            tableView()->currentIndex().column()
-            ));
-    }
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnNext_clicked()
 {
-    table()->next();
-    if(tableView()){
-        tableView()->setCurrentIndex(tableView()->model()->index(
-            tableView()->currentIndex().row()+1,
-            tableView()->currentIndex().column()
-            ));
-    }
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnLast_clicked()
 {
-    table()->last();
-    if(tableView()){
-        tableView()->setCurrentIndex(tableView()->model()->index(
-            tableView()->model()->rowCount()-1,
-            tableView()->currentIndex().column()
-            ));
-    }
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnCancel_clicked()
 {
-    table()->cancel();
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnDelete_clicked()
 {
-    if(QMessageBox::question(nullptr, "CONFIRM SUPPRESSION", "EST CE QUE VOUS ETE SURE DE VOULOIRE SUPPRIMER?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-        return;
-    table()->remove();
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnSave_clicked()
 {
-    table()->post();
-    updateBtns();
+
 }
 
 
 void FrmDbNav::on_btnRefresh_clicked()
 {
-    table()->refresh();
-    updateBtns();
+
+}
+
+MnMapper *FrmDbNav::mapper() const
+{
+    return _mapper;
+}
+
+void FrmDbNav::setMapper(MnMapper *newMapper)
+{
+    if (_mapper == newMapper){
+        return;
+    }
+    if (_mapper){
+        _mapper->removeDbCtrl(this);
+    }
+    _mapper = newMapper;
+    _mapper->addDbCtrl(this);
+}
+
+QPushButton *FrmDbNav::btnFirst() {
+    return ui->btnFirst;
+}
+
+QPushButton *FrmDbNav::btnNext() {
+    return ui->btnNext;
+}
+
+QPushButton *FrmDbNav::btnPrior() {
+    return ui->btnPrior;
+}
+
+QPushButton *FrmDbNav::btnLast() {
+    return ui->btnLast;
+}
+
+QPushButton *FrmDbNav::btnRefresh() {
+    return ui->btnRefresh;
+}
+
+QPushButton *FrmDbNav::btnCancel() {
+    return ui->btnCancel;
+}
+
+QPushButton *FrmDbNav::btnDelete() {
+    return ui->btnDelete;
+}
+
+QPushButton *FrmDbNav::btnSave() {
+    return ui->btnSave;
 }
 

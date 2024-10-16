@@ -42,7 +42,6 @@ set(PROJECT_SOURCES
         mnlibrary/db_basic.h mnlibrary/db_basic.cpp
         db_design.h
         mnlibrary/mnview.cpp mnlibrary/mnview.h
-
         test.h
         css.h
         mnlibrary/grafics.cpp
@@ -51,6 +50,8 @@ set(PROJECT_SOURCES
         mnlibrary/mntablemodel.h mnlibrary/mntablemodel.cpp
         mnlibrary/gui/mntableview.h mnlibrary/gui/mntableview.cpp
         mnlibrary/gui/frmdbnav.h mnlibrary/gui/frmdbnav.cpp mnlibrary/gui/frmdbnav.ui
+        mnlibrary/mnmapper.cpp mnlibrary/mnmapper.h
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -4,6 +4,7 @@
 #include "db_design.h"
 #include "mnexception.h"
 #include "mntablemodel.h"
+#include "mnmapper.h"
 
 
 FrmUnit::FrmUnit(QWidget *parent)
@@ -17,9 +18,10 @@ FrmUnit::FrmUnit(QWidget *parent)
         throw MNException("frmUnite cant open table unite "+dtm->connMain()->errorMessage());
     }
     MnTableModel *model = new MnTableModel(tbl,this);
+    MnMapper * mapper = new MnMapper(model,this);
     ui->tableView->setModel(model);
-    ui->dbNav->setTable(tbl);
-    ui->dbNav->setTableView(ui->tableView);
+    ui->dbNav->setMapper(mapper);
+    mapper->addDbCtrl(ui->tableView);
 }
 
 FrmUnit::~FrmUnit()

@@ -9,7 +9,7 @@ int MnTableModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    int c = mnTable->recordCount();
+    //int c = mnTable->recordCount();
     return mnTable->recordCount();
 }
 
@@ -17,7 +17,7 @@ int MnTableModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    int c = mnTable->fields().count();
+    //int c = mnTable->fields().count();
     return mnTable->fields().count();
 }
 
@@ -26,11 +26,12 @@ QVariant MnTableModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole)
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        QString d = mnTable->fieldByInd(index.column());
-        mnTable->goTo(index.row());
-        return mnTable->fieldByInd(index.column());
+        //QString d = mnTable->fieldByInd(index.column());
+        //mnTable->goTo(index.row());
+        return mnTable->valueAt(index.row(),index.column());
+        //return mnTable->fieldByInd(index.column());
     }
     return QVariant();
 }
@@ -53,9 +54,9 @@ bool MnTableModel::setData(const QModelIndex &index, const QVariant &value, int 
     {
         int row = index.row();
         int col = index.column();
-        mnTable->goTo(row);
+        //mnTable->goTo(row);
         mnTable->edit();
-        mnTable->setFieldValue(col, value.toString());
+        mnTable->setFieldValue(row,col, value.toString());
         emit dataChanged(index, index);
         return true;
     }
@@ -74,4 +75,27 @@ Qt::ItemFlags MnTableModel::flags(const QModelIndex &index) const
 MnTable *MnTableModel::table()
 {
     return mnTable;
+}
+
+
+bool MnTableModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    beginInsertRows(parent, row, row + count - 1);
+    for (int i = 0; i < count; ++i)
+    {
+        mnTable->append();
+    }
+    endInsertRows();
+    return true;
+}
+
+bool MnTableModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows(parent, row, row + count - 1);
+    for (int i = 0; i < count; ++i)
+    {
+        mnTable->remove();
+    }
+    endRemoveRows();
+    return true;
 }
