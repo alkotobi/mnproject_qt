@@ -19,9 +19,8 @@ FrmUnit::FrmUnit(QWidget *parent)
     }
     MnTableModel *model = new MnTableModel(tbl,this);
     MnMapper * mapper = new MnMapper(model,this);
-    ui->tableView->setModel(model);
+    ui->tableView->setMapper(mapper);
     ui->dbNav->setMapper(mapper);
-    mapper->addDbCtrl(ui->tableView);
 }
 
 FrmUnit::~FrmUnit()

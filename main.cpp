@@ -6,10 +6,12 @@
 #include "frmlogin.h"
 #include "dtm.h"
 #include "css.h"
-
+// #include "qtrpt.h"
+// #include <QDomDocument>
 
 int main(int argc, char *argv[])
 {
+
     QApplication a(argc, argv);
     app = &a;
     QTranslator translator;
@@ -21,6 +23,12 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    // QtRPT rpt;
+    // auto doc = QDomDocument();
+    // doc.setContent("/Users/mac/dev/qt/mnproject/rpt.xml");
+    // rpt.loadReport("/Users/mac/dev/qt/mnproject/rpt.xml");
+    // //rpt.printExec();
+    // rpt.printPDF("/Users/mac/dev/qt/mnproject/rpt.pdf");
  a.setStyleSheet(cssGlobal);
     Dtm _dtm;
     dtm = &_dtm;

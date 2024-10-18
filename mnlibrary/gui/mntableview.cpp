@@ -1,6 +1,6 @@
 #include "mntableview.h"
 #include <QKeyEvent>
-
+#include "mnmapper.h"
 
 MnTableView::MnTableView( QWidget *parent) :
     QTableView(parent)
@@ -14,6 +14,18 @@ void MnTableView::setModel(MnTableModel *model)
     QTableView::setModel(model);
     tableModel = model;
     previousRowIndex = model->index(0,0);
+}
+
+void MnTableView::setMapper(MnMapper *mapper)
+{
+    if(mapper == this->_mapper)
+        return;
+    if(_mapper){
+        _mapper->removeDbCtrl(this);
+    }
+    _mapper = mapper;
+    _mapper->addDbCtrl(this);
+    this->setModel(_mapper->model());
 }
 
 void MnTableView::keyPressEvent(QKeyEvent *event)
@@ -54,4 +66,9 @@ bool MnTableView::canMoveRow() const
     MnTable *mnTable = tableModel->table();
     // Add your condition logic here
     return true; // Replace this with your actual condition
+}
+
+MnMapper *MnTableView::mapper() const
+{
+    return _mapper;
 }

@@ -8,3 +8,9 @@ build/
 cmake-build-debug/
 
 test.h
+
+QRptLibs/
+
+rpt.pdf
+
+rpt.xml
