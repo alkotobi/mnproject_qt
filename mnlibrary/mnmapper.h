@@ -41,6 +41,7 @@ public slots:
     bool cancel();
     bool remove();
     void refresh();
+    void add();
 
 signals:
     void rowChanged(int row);
@@ -57,4 +58,6 @@ signals:
     void onAfterRSave(MnMapper *mapper);
     void onBeforCancel(MnMapper *mapper);
     void onAfterCancel(MnMapper *mapper);
+    void onBeforeAdd(MnMapper *mapper);
+    void onAfterAdd(MnMapper *mapper);
 };

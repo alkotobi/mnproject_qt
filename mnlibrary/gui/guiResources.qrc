@@ -10,5 +10,6 @@
         <file>svg/refresh_48px.svg</file>
         <file>svg/lock_48px.svg</file>
         <file>svg/lock_open_gradN25_48px.svg</file>
+        <file>svg/plus.svg</file>
     </qresource>
 </RCC>

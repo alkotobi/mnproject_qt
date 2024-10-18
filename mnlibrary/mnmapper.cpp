@@ -191,6 +191,9 @@ void MnMapper::addDbCtrl(FrmDbNav *nav) {
     connect(nav->btnCancel(),&QPushButton::clicked,this,&MnMapper::cancel);
     connect(nav->btnCancel(),&QPushButton::clicked,nav,&FrmDbNav::updateBtns);
 
+    connect(nav->btnAdd(),&QPushButton::clicked,this,&MnMapper::add);
+    connect(nav->btnAdd(),&QPushButton::clicked,nav,&FrmDbNav::updateBtns);
+
 }
 
 bool MnMapper::save() {
@@ -240,6 +243,13 @@ bool MnMapper::remove() {
 void MnMapper::refresh() {
     _model->table()->refresh();
     emit onRefresh();
+}
+
+void MnMapper::add()
+{
+    emit onBeforeAdd(this);
+    _model->insertRows(_model->table()->recordCount(),1);
+    emit onAfterAdd(this);
 }
 
 

@@ -27,6 +27,7 @@ public:
     QPushButton *btnCancel();
     QPushButton *btnDelete();
     QPushButton *btnSave();
+    QPushButton *btnAdd();
     MnMapper *mapper() const;
     void setMapper(MnMapper *newMapper);
 

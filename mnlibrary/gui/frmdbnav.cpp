@@ -19,6 +19,7 @@ FrmDbNav::FrmDbNav(QWidget *parent)
     ui->btnPrior->setIcon(iconFromSvg(":/svg/svg/navigate_before_48px.svg",colorIcon));
     ui->btnRefresh->setIcon(iconFromSvg(":/svg/svg/refresh_48px.svg",colorIcon));
     ui->btnSave->setIcon(iconFromSvg(":/svg/svg/file_save_grad200_48px.svg",colorIcon));
+    ui->btnAdd->setIcon(iconFromSvg(":/svg/svg/plus.svg",colorIcon));
 
 }
 
@@ -44,6 +45,7 @@ bool $updateBtns(QObject* sender,void* receiver){
     frm->ui->btnNext->setEnabled(frm->mapper()->model()->table() && frm->mapper()->model()->table()->rowNo() != frm->mapper()->model()->table()->recordCount()-1);
     frm->ui->btnLast->setEnabled(frm->ui->btnNext->isEnabled());
     frm->ui->btnRefresh->setEnabled(!frm->ui->btnSave->isEnabled());
+    frm->ui->btnAdd->setEnabled(frm->mapper()->model()->table()->state() != stInsert);
     return true;
 }
 void FrmDbNav::updateBtns()
@@ -119,6 +121,7 @@ void FrmDbNav::setMapper(MnMapper *newMapper)
     }
     _mapper = newMapper;
     _mapper->addDbCtrl(this);
+    this->updateBtns();
 }
 
 QPushButton *FrmDbNav::btnFirst() {
@@ -151,5 +154,10 @@ QPushButton *FrmDbNav::btnDelete() {
 
 QPushButton *FrmDbNav::btnSave() {
     return ui->btnSave;
+}
+
+QPushButton *FrmDbNav::btnAdd()
+{
+    return ui->btnAdd;
 }
 
