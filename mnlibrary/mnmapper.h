@@ -26,7 +26,7 @@ public:
     void addDbCtrl(FrmDbNav *nav);
     void removeDbCtrl(FrmDbNav *nav);
     void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
-
+    void updateNavs();
     MnTableModel *model() const;
     void setModel(MnTableModel *newModel);
 
@@ -39,7 +39,7 @@ public slots:
     bool save();
     bool edit();
     bool cancel();
-    bool remove();
+    void remove();
     void refresh();
     void add();
 

@@ -53,6 +53,14 @@ QIcon iconFromSvg(const QString& svgFilePath, const QString& newColor) {
                 s.replace(match.captured(0), QString("stroke=\"%1\"").arg(newColor));
             }
         }
+         re=QRegularExpression("fill=\"([^\"]*)\"");
+         it = re.globalMatch(s);
+        while (it.hasNext()) {
+            QRegularExpressionMatch match = it.next();
+            if (match.hasMatch()) {
+                s.replace(match.captured(0), QString("fill=\"%1\"").arg(newColor));
+            }
+        }
 
         QSvgRenderer renderer(s.toUtf8());
         QPixmap pixmap(32, 32);

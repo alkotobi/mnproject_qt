@@ -51,6 +51,8 @@ set(PROJECT_SOURCES
         mnlibrary/gui/mntableview.h mnlibrary/gui/mntableview.cpp
         mnlibrary/gui/frmdbnav.h mnlibrary/gui/frmdbnav.cpp mnlibrary/gui/frmdbnav.ui
         mnlibrary/mnmapper.cpp mnlibrary/mnmapper.h
+        mnlibrary/gui/mnitemdelegate.cpp
+        mnlibrary/gui/mnitemdelegate.h
 
 )
 

@@ -54,7 +54,6 @@ bool MnTableModel::setData(const QModelIndex &index, const QVariant &value, int 
     {
         int row = index.row();
         int col = index.column();
-        //mnTable->goTo(row);
         mnTable->edit();
         mnTable->setFieldValue(row,col, value.toString());
         emit dataChanged(index, index);
@@ -66,6 +65,9 @@ bool MnTableModel::setData(const QModelIndex &index, const QVariant &value, int 
 Qt::ItemFlags MnTableModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+    if (mnTable->tableDef().fields[index.column()].field_name=="id"){
+        return defaultFlags & (~Qt::ItemIsEditable);
+    }
     if (index.isValid())
         return defaultFlags | Qt::ItemIsEditable;
     else

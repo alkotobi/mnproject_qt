@@ -1,13 +1,18 @@
 #include "mntableview.h"
-#include <QKeyEvent>
 #include "mnmapper.h"
+#include <QDebug>
+#include "mnitemdelegate.h"
+
 
 MnTableView::MnTableView( QWidget *parent) :
     QTableView(parent)
 {
     tableModel = nullptr;
     previousRowIndex = QModelIndex();
+    this->setItemDelegate(new MnItemDelegate(this));
+
 }
+
 
 void MnTableView::setModel(MnTableModel *model)
 {
@@ -26,6 +31,12 @@ void MnTableView::setMapper(MnMapper *mapper)
     _mapper = mapper;
     _mapper->addDbCtrl(this);
     this->setModel(_mapper->model());
+
+    for (int var = 0; var < _mapper->model()->table()->fields().size(); ++var) {
+        if(!_mapper->model()->table()->tableDef().fields[var].is_visible)
+            setColumnHidden(var,true);
+    }
+    setColumnHidden(0,false);
 }
 
 void MnTableView::keyPressEvent(QKeyEvent *event)
@@ -41,6 +52,7 @@ void MnTableView::keyPressEvent(QKeyEvent *event)
             }
         }
         previousRowIndex = currentIndex();
+        this->_mapper->updateNavs();
     }
     QTableView::keyPressEvent(event);
 }
@@ -56,6 +68,7 @@ void MnTableView::mousePressEvent(QMouseEvent *event)
             }
         }
         previousRowIndex = currentIndex();
+        this->_mapper->updateNavs();
     }
 }
 

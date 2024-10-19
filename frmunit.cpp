@@ -5,7 +5,7 @@
 #include "mnexception.h"
 #include "mntablemodel.h"
 #include "mnmapper.h"
-
+#include <QKeyEvent>
 
 FrmUnit::FrmUnit(QWidget *parent)
     : QDialog(parent)
@@ -21,7 +21,19 @@ FrmUnit::FrmUnit(QWidget *parent)
     MnMapper * mapper = new MnMapper(model,this);
     ui->tableView->setMapper(mapper);
     ui->dbNav->setMapper(mapper);
+    //ui->tableView->viewport()->installEventFilter(this);
 }
+
+// bool FrmUnit::eventFilter(QObject* object, QEvent* event) {
+//     if (object == ui->tableView->viewport()) {
+//         if (event->type() == QEvent::KeyPress) {
+//             QKeyEvent *e =static_cast<QKeyEvent*>(event);
+//             qDebug()<< e->key();
+//         }
+
+//     }
+//     return false;
+// }
 
 FrmUnit::~FrmUnit()
 {

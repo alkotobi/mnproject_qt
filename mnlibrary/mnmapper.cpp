@@ -164,6 +164,9 @@ void MnMapper::removeDbCtrl(FrmDbNav *nav) {
     disconnect(nav->btnCancel(),&QPushButton::clicked,this,&MnMapper::cancel);
     disconnect(nav->btnCancel(),&QPushButton::clicked,nav,&FrmDbNav::updateBtns);
 
+    disconnect(nav->btnAdd(),&QPushButton::clicked,this,&MnMapper::add);
+    disconnect(nav->btnAdd(),&QPushButton::clicked,nav,&FrmDbNav::updateBtns);
+
 }
 void MnMapper::addDbCtrl(FrmDbNav *nav) {
     navs.append(nav);
@@ -230,14 +233,12 @@ bool MnMapper::cancel() {
     return false;
 }
 
-bool MnMapper::remove() {
+void MnMapper::remove() {
     if(QMessageBox::question(nullptr, "CONFIRM SUPPRESSION", "EST CE QUE VOUS ETE SURE DE VOULOIRE SUPPRIMER?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-        return false;
+        return ;
     emit onBeforeRemove(this);
-    bool ret =  _model->table()->remove();
-    if (ret)
-        emit onAfterREmove(this);
-    return ret;
+    _model->removeRows(_model->table()->rowNo(),1);
+    emit onAfterREmove(this);
 }
 
 void MnMapper::refresh() {
@@ -250,6 +251,17 @@ void MnMapper::add()
     emit onBeforeAdd(this);
     _model->insertRows(_model->table()->recordCount(),1);
     emit onAfterAdd(this);
+    for (MnTableView* tableView : views)
+    {
+        userInteract = false;
+        tableView->setCurrentIndex(_model->index(_model->table()->rowNo(), tableView->currentIndex().column()));
+    }
+}
+
+void MnMapper::updateNavs() {
+    for (auto nav :navs) {
+        nav->updateBtns();
+    }
 }
 
 

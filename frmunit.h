@@ -14,6 +14,7 @@ public:
     explicit FrmUnit(QWidget *parent = nullptr);
     ~FrmUnit();
 
+    //bool eventFilter(QObject *object, QEvent *event);
 private:
     Ui::FrmUnit *ui;
 };
